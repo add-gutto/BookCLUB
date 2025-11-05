@@ -1,0 +1,83 @@
+{% extends '_layout.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card o-hidden border-0 shadow-lg my-5" style="max-width: 900px;">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="col-lg-5 d-none d-lg-block">
+                    <img src="{% static 'template/img/placeholderimage.jpg' %}" alt="Logo"
+                         class="img-fluid px-3 px-sm-4 mt-3 mb-4">
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="p-5">
+                        <div class="text-center mb-4">
+                            <h1 class="h4 text-gray-900">Criar Conta</h1>
+                        </div>
+
+                        <form method="POST" class="user" action="{% url 'sign-up' %}">
+                            {% csrf_token %}
+
+                            <div class="form-group mb-3">
+                                <input type="text" name="username" class="form-control form-control-user"
+                                       placeholder="Usuário" value="{{ form.username.value|default_if_none:'' }}">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                    <input type="text" name="name" class="form-control form-control-user"
+                                           placeholder="Nome Completo" value="{{ form.name.value|default_if_none:'' }}">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <input type="email" name="email" class="form-control form-control-user"
+                                       placeholder="Endereço de Email" value="{{ form.email.value|default_if_none:'' }}">
+                            </div>
+                            
+                            <small class="form-text text-muted">{{ password_rules|safe }}</small>
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="password" name="password1" class="form-control form-control-user"
+                                           placeholder="Senha">
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="password" name="password2" class="form-control form-control-user"
+                                           placeholder="Confirmar Senha">
+                                </div>
+                            </div>
+                            
+                           {% for field, errors in form.errors.items %}
+    {% for error in errors %}
+        <div class="text-danger small mb-1">{{ error }}</div>
+    {% endfor %}
+{% endfor %}
+
+                            <button type="submit" class="btn btn-primary btn-user btn-block">
+                                Registrar Conta
+                            </button>
+                            <hr>
+
+                            <a href="#" class="btn btn-google btn-user btn-block">
+                                <i class="fab fa-google fa-fw"></i> Registrar com Google
+                            </a>
+                            <a href="#" class="btn btn-facebook btn-user btn-block">
+                                <i class="fab fa-facebook-f fa-fw"></i> Registrar com Facebook
+                            </a>
+                        </form>
+
+                        <hr>
+
+                        <div class="text-center">
+                            <a class="small" href="{% url 'password_reset' %}">Esqueceu a senha?</a>
+                        </div>
+                        <div class="text-center">
+                            <a class="small" href="{% url 'login' %}">Já tem uma conta? Faça login!</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

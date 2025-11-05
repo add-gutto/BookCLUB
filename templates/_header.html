@@ -1,0 +1,37 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <div class="container-fluid">
+        <a class="btn d-md-none" id="sidebarToggleHeader" aria-label="Abrir menu lateral" data-bs-toggle="collapse">
+            <i class="bi bi-layout-sidebar" style="font-size: 1.5rem;"></i>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mt-2 mt-lg-0 justify-content-center">
+                {% if request.user.is_staff %}
+                <li class="nav-item"><a class="nav-link" href="#!">Link</a></li>
+                <li class="nav-itemtext-center"><a class="nav-link" href="{% url 'user-list' %}">Lista de Usuários</a>
+                </li>
+                {% endif %}
+                <li class="nav-item dropdown no-arrow">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
+                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="mr-2 d-none d-lg-inline text-gray-600">{{ request.user.username }}</span>
+                        <img class="img-profile rounded-circle"
+                            src="{% if request.user.profile.profile_picture %}{{ request.user.profile.profile_picture.url }}{% else %}{% static 'template/img/placeholder.jpg' %}{% endif %}"
+                            width="30" height="30" style="object-fit: cover;">
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{% url 'user-profile' request.user.id %}">Profile</a>
+                        <a class="dropdown-item" href="{% url 'user-detail' request.user.id %}">Configurações</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'logout' %}">Sair</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

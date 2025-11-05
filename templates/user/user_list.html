@@ -1,0 +1,81 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<div class="container col-lg-10 col-sm-12 mx-auto">
+    <!-- Cabeçalho -->
+    <div class="col-lg-2 d-flex text-center align-items-center mb-3">
+        <a href="javascript:history.back()" class="btn btn-secondary btn-circle btn-back mr-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="h3 text-gray-800 weight-bold mt-2">Usuários</h1>
+    </div>
+
+    <!-- Card de Tabela -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 justify-content-between d-flex">
+            <form id="search-form"
+                  class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" class="form-control bg-light border-0 small" name="query"
+                           placeholder="Pesquise por Nome" aria-label="Search" aria-describedby="basic-addon2" required>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search fa-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Perfil</th>
+                            <th>Detalhes</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Perfil</th>
+                            <th>Detalhes</th>
+                        </tr>
+                    </tfoot>
+                    <tbody id="users-container">
+                        {% for user in users%}
+                            <tr>
+                              <td>{{ user.name }}</td>
+
+
+                                <td>{{ user.email }}</td>
+                                <td class="text-center align-middle">
+                                    <a href="{% url 'user-profile' user.id %}" class="btn btn-primary btn-circle">
+                                        <i class="fas fa-eye" style="color: white"></i>
+                                    </a>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <a href="{% url 'user-detail' user.id %}" class="btn btn-primary btn-circle">
+                                        <i class="fas fa-eye" style="color: white"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center">Nenhum usuário encontrado.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

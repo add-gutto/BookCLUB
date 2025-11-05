@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    image: bookclub-django
+    container_name: bookclub-web
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    expose:
+      - "8000"
+    env_file:
+      - .env   
+    environment:
+      - DEBUG=1
+    depends_on:
+      - db
+    networks:
+      - bookclub-net
+
+  db:
+    image: postgres:15
+    container_name: bookclub-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bookclub
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - bookclub-net
+
+  nginx:
+    image: nginx:alpine
+    container_name: bookclub-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - .:/app  # permite acesso a /app/static e /app/media
+    depends_on:
+      - web
+    restart: always
+    networks:
+      - bookclub-net
+
+
+volumes:
+  pgdata:
+
+networks:
+  bookclub-net:
+    driver: bridge

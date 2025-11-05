@@ -1,0 +1,113 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="col-lg-10 col-sm-12 mx-auto">
+        <form class="user" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="card border-0 overflow-hidden">
+
+                <!-- Upload e Preview da Thumbnail -->
+                <div class="position-relative" style="height: 200px;">
+                    <img src="{% if profile.thumbnail %}{{ profile.thumbnail.url }}{% else %}{% static 'template/img/placeholder_thumb.jpeg' %}{% endif %}"
+                         alt="Capa do perfil"
+                         class="img-fluid rounded-top w-100 h-100"
+                         style="object-fit: cover;">
+
+                    <!-- Ícone sobre a thumbnail -->
+                    <label class="btn btn-sm position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center"
+       style="width: 48px; height: 48px; background-color: transparent; border: none; cursor: pointer;">
+    <i class="bi bi-camera-fill text-dark fs-5"></i>
+    <input type="file" name="thumbnail" accept="image/*" class="d-none">
+</label>
+
+                </div>
+
+                <!-- Corpo do card -->
+                <div class="card-body border">
+                    <div class="row align-items-center mb-4">
+                        <!-- Avatar -->
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div class="position-relative me-3" style="margin-top: -100px;">
+                                <img id="preview-avatar" 
+                                     src="{% if profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}{% static 'template/img/placeholder.jpg' %}{% endif %}"
+                                     alt="Avatar"
+                                     class="rounded-circle border border-4 border-white shadow"
+                                     width="150" height="150">
+
+                                <!-- Ícone sobre o avatar -->
+                                <label class="btn btn-sm position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center"
+                                       style="width: 48px; height: 48px; background-color: transparent; border: none; cursor: pointer;">
+                                   <i class="bi bi-camera-fill text-dark fs-5"></i>
+                                    <input type="file" name="profile_picture" accept="image/*" class="d-none">
+                                </label>
+                            </div>
+
+                            <div class="mt-4">
+                                <div class="form-group mb-3">
+                                    <input type="text" 
+                                           class="form-control"
+                                           name="name" 
+                                           placeholder="Nome"
+                                           value="{{ profile.name|default_if_none:user.username }}">
+                                </div>
+                                <h6 class="text-muted mb-1">@{{ user.username }}</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inputs principais -->
+                    <div class="form-group mb-3">
+                        <textarea class="form-control" 
+                                  name="bio" 
+                                  placeholder="Bio" 
+                                  rows="3">{{ profile.bio }}</textarea>
+                    </div>
+
+                    <!-- Botão -->
+                    <div class="d-flex justify-content-end gap-3">
+                        <button type="submit" class="btn btn-primary px-5 py-2 fw-semibold">
+                            <i class="fa fa-save me-2"></i> Salvar
+                        </button>
+                    </div>
+
+                    <!-- Erros -->
+                    {% if form.errors %}
+                        <div class="text-danger mt-2">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Script para preview -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarInput = document.querySelector('input[name="profile_picture"]');
+    const thumbInput = document.querySelector('input[name="thumbnail"]');
+    const avatarPreview = document.getElementById('preview-avatar');
+    const thumbPreview = document.querySelector('.card img');
+
+    function previewImage(input, preview) {
+        input.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => preview.src = e.target.result;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    if (avatarInput && avatarPreview) previewImage(avatarInput, avatarPreview);
+    if (thumbInput && thumbPreview) previewImage(thumbInput, thumbPreview);
+});
+</script>
+{% endblock %}

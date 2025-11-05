@@ -1,0 +1,5 @@
+djangorestframework 
+drf-yasg 
+djangorestframework-simplejwt
+python-decouple
+Pillow
