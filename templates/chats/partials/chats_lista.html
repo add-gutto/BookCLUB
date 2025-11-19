@@ -1,0 +1,15 @@
+{% load static %}
+{% for chat in chats %}
+<a class="list-group-item list-group-item-action d-flex align-items-center justify-content-between" href="{% url 'grupo_detail' chat.id %}">
+    <div class="d-flex align-items-center gap-2">
+            <img  src="{% if chat.imagem %}{{ chat.imagem.url }}{%else %}{% static 'template/img/placeholder.jpg' %}{% endif %}" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+        <div>{{ chat.nome }}</div>
+    </div>
+    <div class="d-flex align-items-center justify-content-center rounded-circle bg-primary text-white" 
+         style="width: 25px; height: 25px; font-size: 0.8rem;">
+        {{ chat.membros.count }}
+    </div>
+</a>
+{% empty %}
+<p class="text-muted text-center">Nenhum chat encontrado.</p>
+{% endfor %}

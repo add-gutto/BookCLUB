@@ -1,39 +1,70 @@
-<div class="border-end bg-white" id="sidebar-wrapper">
-    <div class="sidebar-heading d-flex justify-content-between align-items-center px-3 py-8 mt-2">
-        Name of the app
-        <a class="btn d-none d-md-inline" id="sidebarToggleNav" aria-label="Abrir menu lateral">
-  <i class="bi bi-layout-sidebar" style="font-size: 1.5rem;"></i>
+{% load static %}
+<div class="border-end bg-white position-relative" id="sidebar-wrapper">
+    <!-- Sidebar - Brand -->
+            <a class="sidebar-heading d-flex align-items-center justify-content-center mt-2 text-primary"
+   href="{% url 'home' %}">
+    <div class="sidebar-brand-icon me-2">
+        <i class="bi bi-book  fa-2x icon-bold"></i>
+    </div>
+    <div class="sidebar-brand-text h3 m-0">BookCLUB</div>
 </a>
 
-    </div>
-    <div class="list-group list-group-flush m-1">
-        <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!"><i
-                class="bi bi-pencil-square" style="font-size: 1.2rem; color: #000;"></i> Criar Grupo</a>
-    </div>
-    <div class="list-group list-group-flush m-1">
-        <!-- {% for secao in secoes %}
-    <div class="d-flex align-items-center justify-content-between list-group-item py-3 px-4 rounded border-0 position-relative"
-         style="background-color: #f8f9fa; transition: background-color 0.2s; margin-bottom: 0.5rem;">
-      
-      <a href="#" class="text-decoration-none text-dark flex-grow-1 link-secao word-wrap: break-word;" data-pk="{{ secao.id }}">
-        {{ secao.nome }}
-      </a>
 
-      <button class="btn btn-light ms-0 toggle-menu" style="padding: 0.25rem;">
-        <i class="bi bi-three-dots" style="font-size: 0.9rem;"></i>
-      </button>
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
 
-      <div class="menu-opcoes position-absolute end-0 mt-5 p-2 bg-white shadow rounded d-none" style="z-index: 1000;">
-        <a href="del/{{ secao.id }}/" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
-      </div>
+    <div class="list-group list-group-flush " id="chats-lista" data-route="{% url 'chats' %}">
+        <!-- Conteúdo AJAX será inserido aqui -->
     </div>
-    {% endfor %}
--->
-        <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Dashboard</a>
-        <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Shortcuts</a>
-        <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Overview</a>
-        <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Events</a>
-        <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Profile</a>
-        <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Status</a>
+
+    <!-- Botão flutuante Criar Grupo -->
+    <div class="position-absolute bottom-0 end-0 p-3">
+        <div class="dropup">
+            <!-- Botão principal -->
+            <button class="btn btn-primary rounded-circle shadow"
+                style="width:48px; height:48px; display:flex; align-items:center; justify-content:center;" type="button"
+                id="floatingDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-ellipsis-v fs-5"></i>
+            </button>
+
+            <!-- Dropdown com botões -->
+            <ul class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="floatingDropdown"
+                style="background:none; border:none; min-width:auto;">
+                <li>
+                    <a href="{% url 'selecionar_membros' %}" class="btn btn-primary rounded-circle shadow mb-2"
+                        style="width:48px; height:48px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fa-regular fa-pen-to-square fs-5"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'selecionar_membros' %}" class="btn btn-primary rounded-circle shadow mb-2"
+                        style="width:48px; height:48px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fa-solid fa-magnifying-glass fs-5"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('chats-lista');
+        const route = container.dataset.route;
+
+        fetch(route)
+            .then(response => response.text())
+            .then(html => {
+                const cleanHtml = DOMPurify.sanitize(html, {
+                    ADD_TAGS: ['a', 'div', 'img'],
+                    ADD_ATTR: ['class', 'style', 'href']
+                });
+                container.innerHTML = cleanHtml;
+            })
+            .catch(err => console.error("Erro ao carregar chats:", err));
+
+        // Tooltip bootstrap
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+    });
+</script>

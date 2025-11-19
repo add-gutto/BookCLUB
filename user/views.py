@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -16,7 +17,7 @@ from django.views.generic import (
 )
 
 from .forms import UserForm, AuthenticationForm, ProfileForm
-from .models import User, Profile
+from .models import User, Profile, Seguidor
 
 
 # ----------------------------
@@ -37,6 +38,15 @@ class UserProfileView(DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(User, pk=self.kwargs.get("pk"))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        perfil = self.get_object()
+        seguindo_ids = self.request.user.seguindo.values_list('seguindo__id', flat=True)
+        seguidores_ids = self.request.user.seguidores.values_list('usuario__id', flat=True)
+        context['is_seguindo'] = perfil.id in seguindo_ids          # request.user já segue esse perfil?
+        context['is_seguido_por'] = perfil.id in seguidores_ids    # esse perfil segue request.user?
+        return context
 
 
 class EditProfileView(UpdateView):
@@ -148,15 +158,37 @@ class UserPasswordChangeView(PasswordChangeView):
         return context
 
 
+
 class UserPasswordResetView(PasswordResetView):
     form_class = PasswordResetForm
     template_name = "user/forms/password_reset.html"
     subject_template_name = "user/email/resetar_senha_email.txt"
     email_template_name = "user/email/resetar_senha_email.html"
     html_email_template_name = "user/email/resetar_senha_email.html"
-    success_url = reverse_lazy("password_reset_done")
+    success_url = reverse_lazy("login")
 
-    extra_email_context = {"APP_NAME": settings.APP_NAME}
+    def get_users(self, email):
+        active_users = User.objects.filter(email__iexact=email)
+        return [user for user in active_users if user.has_usable_password()]
+
+    def get_email_context(self, user):
+        return {
+            "APP_NAME": settings.APP_NAME,
+            "user": user
+        }
+
+    def form_valid(self, form):
+        for user in self.get_users(form.cleaned_data["email"]):
+            form.save(
+                request=self.request,
+                use_https=self.request.is_secure(),
+                from_email=None,
+                email_template_name=self.email_template_name,
+                subject_template_name=self.subject_template_name,
+                html_email_template_name=self.html_email_template_name,
+                extra_email_context=self.get_email_context(user),
+            )
+        return HttpResponseRedirect(self.success_url) 
 
 
 class UserPasswordResetConfirmView(PasswordResetConfirmView):
@@ -176,3 +208,19 @@ class UserPasswordResetConfirmView(PasswordResetConfirmView):
 
 class UserPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = "user/forms/password_reset_complete.html"
+
+@login_required
+def seguir_usuario(request, user_id):
+    usuario_a_seguir = get_object_or_404(User, pk=user_id)
+
+    if usuario_a_seguir == request.user:
+        return redirect("user-profile", pk=user_id)
+
+    relacionamento, criado = Seguidor.objects.get_or_create(
+        usuario=request.user,
+        seguindo=usuario_a_seguir
+    )
+    if not criado:
+        relacionamento.delete()
+
+    return redirect("user-profile", pk=user_id)

@@ -60,9 +60,27 @@ INSTALLED_APPS = [
      "rest_framework",
     "rest_framework.authtoken",
     "drf_yasg",
+    "channels",
     "user",
+    "grupo",
+    "chat",
+    "livro"
 ]
 AUTH_USER_MODEL = "user.User"
+
+ASGI_APPLICATION = "BookCLUB.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],  # ou ("localhost", 6379)
+        },
+    },
+}
+
+
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

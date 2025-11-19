@@ -9,64 +9,59 @@
             <div class="user-detail">
                 <p><strong>Username:</strong> {{ user.username }}</p>
                 <p><strong>Email:</strong> {{ user.email }}</p>
-                <p><strong>Nome:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                <p><strong>Nome:</strong> {{ user.name }}</p>
             </div>
 
-            <div class="tab-content profile-tab">
-                <div class="tab-pane fade show active">
 
-                    <div class="row">
-                        {% if request.user.id == user.id %}
-                        <div class="col-12 mb-2">
-                            <a href="{% url 'change-password' %}" class="btn btn-light w-100 text-secondary">
-                                Atualizar Senha
-                            </a>
-                        </div>
+            <div class="row">
+                {% if request.user.id == user.id %}
+                <div class="col-12 mb-2">
+                    <a href="{% url 'change-password' %}" class="btn btn-light w-100 text-secondary">
+                        Atualizar Senha
+                    </a>
+                </div>
 
-                        <div class="col-12 mb-2">
-                            <a href="#" class="btn btn-light w-100 text-secondary">
-                                Atualizar Email
-                            </a>
-                        </div>
-                        {% endif %}
+                <div class="col-12 mb-2">
+                    <a href="#" class="btn btn-light w-100 text-secondary">
+                        Atualizar Email
+                    </a>
+                </div>
+                {% endif %}
 
-                        {% if request.user.is_staff %}
-                        <div class="col-12 mb-2">
-                            <div class="col-12 mb-2">
-    <form action="{% url 'user-admin' user.id %}" method="post">
-        {% csrf_token %}
-        <button type="submit"
-            class="btn btn-light w-100 {% if user.is_staff %}text-danger{% else %}text-success{% endif %}">
-            {% if user.is_staff %}
-                Retirar Administrador
-            {% else %}
-                Tornar Administrador
-            {% endif %}
-        </button>
-    </form>
-</div>
-
-                        </div>
-
-                        <div class="col-12 mb-2">
-                            <form action="{% url 'user-status' user.id %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit"
-                                    class="btn btn-light w-100 {% if user.is_active %}text-danger{% else %}text-success{% endif %}">
-                                    {% if user.is_active %}
-                                    Suspender
-                                    {% else %}
-                                    Ativar
-                                    {% endif %}
-                                </button>
-                            </form>
-
-                        </div>
-                        {% endif %}
-
+                {% if request.user.is_staff %}
+                <div class="col-12 mb-2">
+                    <div class="col-12 mb-2">
+                        <form action="{% url 'user-admin' user.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="btn btn-light w-100 {% if user.is_staff %}text-danger{% else %}text-success{% endif %}">
+                                {% if user.is_staff %}
+                                Retirar Administrador
+                                {% else %}
+                                Tornar Administrador
+                                {% endif %}
+                            </button>
+                        </form>
                     </div>
 
                 </div>
+
+                <div class="col-12 mb-2">
+                    <form action="{% url 'user-status' user.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="btn btn-light w-100 {% if user.is_active %}text-danger{% else %}text-success{% endif %}">
+                            {% if user.is_active %}
+                            Suspender
+                            {% else %}
+                            Ativar
+                            {% endif %}
+                        </button>
+                    </form>
+
+                </div>
+                {% endif %}
+
             </div>
         </div>
 

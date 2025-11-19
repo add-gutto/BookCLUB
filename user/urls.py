@@ -1,5 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from . import views
 from .views import (
     UserLoginView, UserLogoutView, UserPasswordChangeView,
     UserPasswordResetView, UserPasswordResetConfirmView, UserPasswordResetCompleteView,
@@ -45,4 +46,5 @@ urlpatterns = [
     # Perfil
     path('profile/<int:pk>/', UserProfileView.as_view(), name='user-profile'),
     path('profile/editar/', EditProfileView.as_view(), name='editar_profile'),
+    path("seguir/<int:user_id>/", views.seguir_usuario, name="seguir_usuario"),
 ]

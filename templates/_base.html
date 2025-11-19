@@ -1,36 +1,51 @@
    {% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title></title>
-        <!-- Favicon-->
-         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-         <!-- Font Awesome 6 Free (Solid, Regular, Brands) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-vH62j+Tf0X5h8eGZyMxYk6PS1m5l2D1gZr7p8qK9uUkl6mI+JQp5u6FqM+R6+Fhe5MKVvRzFjFJ5wL8Wxu3Nw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>BookCLUB</title>
 
-        <link rel="icon" type="image/x-icon" href="{% static 'template/assets/favicon.ico' %}" />
-        <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="{% static 'template/css/styles.css' %}" rel="stylesheet" />
-        <link href="{% static 'template/css/sb-admin-2.min.css' %}" rel="stylesheet" />
-    </head>
-    <body>
-        <div class="d-flex" id="wrapper">
-            {% include '_nav.html' %}
-            <div id="page-content-wrapper">
-                {% include '_header.html' %}
-                <div class="container-fluid">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/template/assets/favicon.ico" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Core theme CSS -->
+    <link href="/static/template/css/styles.css" rel="stylesheet" />
+    <link href="/static/template/css/style.css" rel="stylesheet" />
+    <link href="/static/template/css/sb-admin-2.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+         {% include '_nav.html' %}
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+             {% include '_header.html' %}
+            <!-- Conteúdo da página -->
+            <div>
                     {% block content %}
-                    {% endblock %}
-                </div>
+                       {% endblock %}
+                <!-- Aqui vai seu conteúdo -->
             </div>
         </div>
-        <!-- Bootstrap core JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="{% static 'template/js/scripts.js' %}"></script>
-    </body>
+    </div>
+
+    <!-- Bootstrap Bundle JS (somente uma vez!) -->
+     <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS -->
+    <script src="/static/template/js/scripts.js"></script>
+</body>
 </html>
+

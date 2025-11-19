@@ -10829,9 +10829,13 @@ textarea.form-control-lg {
 }
 
 #sidebar-wrapper {
+  position: fixed;        
   min-height: 100vh;
-  margin-left: -21rem;
+  margin-left: -20rem;
   transition: margin 0.25s ease-out;
+  overflow-y: auto;       /* rolagem vertical apenas no sidebar */
+  overflow-x: hidden;    /* desativa rolagem horizontal no sidebar */
+    z-index: 1000;
 }
 
 #sidebar-wrapper .sidebar-heading {
@@ -10840,11 +10844,16 @@ textarea.form-control-lg {
 }
 
 #sidebar-wrapper .list-group {
-  width: 20rem;
+  width: auto;
+}
+#sidebar-wrapper{
+  width: 25rem;;
 }
 
 #page-content-wrapper {
   min-width: 100vw;
+  overflow-y: auto;       /* rolagem independente do sidebar */
+    height: 100vh;
 }
 
 body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
@@ -10861,6 +10870,6 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
     width: 100%;
   }
   body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
-    margin-left: -17rem;
+    margin-left: -20rem;
   }
 }

@@ -51,6 +51,8 @@ urlpatterns = [
     # suas rotas
     path("", index, name="home"),
     path("user/", include("user.urls")),
+    path("grupo/", include("grupo.urls")),
+    path("livro/", include("livro.urls")),
 ]
 
 if settings.DEBUG:

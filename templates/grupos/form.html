@@ -1,0 +1,125 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="col-lg-10 col-sm-12 mx-auto">
+        <form class="user" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="card border-0 overflow-hidden">
+
+                <div class="card-body border">
+
+                    <div class="row align-items-center mb-4">
+
+                        <!-- Avatar -->
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div class="position-relative me-3">
+
+                                <img id="preview-avatar"
+                                     src="{% if grupo.imagem %}{{ grupo.imagem.url }}{% else %}{% static 'template/img/placeholder.jpg' %}{% endif %}"
+                                     alt="Avatar"
+                                     class="rounded-circle border border-4 border-white shadow"
+                                     width="150"
+                                     height="150">
+
+                                <label class="btn btn-sm position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center"
+                                       style="width: 48px; height: 48px; background-color: transparent; border: none; cursor: pointer;">
+                                    <i class="bi bi-camera-fill fs-5 text-secondary shadow"></i>
+                                    <input type="file" name="imagem" accept="image/*" class="d-none" id="imagem-input">
+                                </label>
+                            </div>
+
+                            <div class="mt-4">
+                                <div class="form-group mb-3">
+                                    <input type="text"
+                                           class="form-control"
+                                           name="nome"
+                                           placeholder="Nome"
+                                           value="{{ grupo.nome }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Descrição -->
+                    <div class="form-group mb-3">
+                        <textarea class="form-control"
+                                  name="descricao"
+                                  placeholder="Descrição do grupo"
+                                  rows="3">{{ grupo.descricao }}</textarea>
+                    </div>
+
+                    <!-- Público / Privado -->
+                    <div class="form-group mb-3 ml-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="privado-switch"
+                                   name="privado"
+                                   {% if grupo.privado %}checked{% endif %}>
+                            <label class="form-check-label" for="privado-switch">
+                                {% if grupo.privado %}
+                                    Grupo Privado
+                                {% else %}
+                                    Grupo Público
+                                {% endif %}
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Botão -->
+                    <div class="d-flex justify-content-end gap-3">
+                        <button type="submit" class="btn btn-primary px-5 py-2 fw-semibold">
+                            {% if button_text == 'Criar Grupo' %}
+                                <i class="fa fa-save me-2"></i> {{ button_text }}
+                            {% else %}  
+                            <i class="fa fa-pen-to-square me-2"></i> {{ button_text }}
+                            {% endif %}
+                        </button>
+                    </div>
+
+                    <!-- Erros -->
+                    {% if form.errors %}
+                        <div class="text-danger mt-2">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Preview Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('imagem-input');
+    const preview = document.getElementById('preview-avatar');
+
+    if (input && preview) {
+        input.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = e => preview.src = e.target.result;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Atualiza o texto do switch em tempo real
+    const privSwitch = document.getElementById('privado-switch');
+    const label = privSwitch.nextElementSibling;
+
+    privSwitch.addEventListener('change', function () {
+        label.textContent = this.checked ? "Grupo Privado" : "Grupo Público";
+    });
+});
+</script>
+{% endblock %}
