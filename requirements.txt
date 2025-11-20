@@ -3,3 +3,5 @@ drf-yasg
 djangorestframework-simplejwt
 python-decouple
 Pillow
+channels
+daphne
