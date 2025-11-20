@@ -1,13 +1,14 @@
 from django.conf import settings
+import json
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.password_validation import password_validators_help_text_html
 from django.contrib.auth.views import (
     PasswordChangeView, PasswordResetView,
-    PasswordResetConfirmView, PasswordResetCompleteView
+    PasswordResetConfirmView
 )
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
@@ -16,8 +17,11 @@ from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, FormView
 )
 
-from .forms import UserForm, AuthenticationForm, ProfileForm
+from .forms import UserForm, AuthenticationForm, ProfileForm, EmailChangeForm
 from .models import User, Profile, Seguidor
+
+
+
 
 
 # ----------------------------
@@ -87,18 +91,11 @@ class UserCreateView(CreateView):
         return context
 
     def form_valid(self, form):
-        # Cria o usuário mas ainda não salva totalmente
         user = form.save(commit=False)
         user.is_active = True
         user.save()
-
-        # 🔹 Cria o perfil automaticamente associado a esse usuário
         Profile.objects.create(user=user)
-
-        # Faz login automático
         login(self.request, user)
-
-        # Redireciona para o perfil do usuário
         return redirect("user-profile", pk=user.pk)
 
 
@@ -206,9 +203,6 @@ class UserPasswordResetConfirmView(PasswordResetConfirmView):
         return context
 
 
-class UserPasswordResetCompleteView(PasswordResetCompleteView):
-    template_name = "user/forms/password_reset_complete.html"
-
 @login_required
 def seguir_usuario(request, user_id):
     usuario_a_seguir = get_object_or_404(User, pk=user_id)
@@ -224,3 +218,28 @@ def seguir_usuario(request, user_id):
         relacionamento.delete()
 
     return redirect("user-profile", pk=user_id)
+
+# ----------------------------
+# Gerenciamento de Troca de Email
+# ----------------------------
+
+# ----------------------------
+# Pesquisa de Usuários
+# ----------------------------
+@login_required
+def search_users(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        query = data.get("query", "").strip()
+    else:
+        query = ""
+
+    users = []
+    if query:
+        users = User.objects.filter(name__icontains=query) | User.objects.filter(email__icontains=query)
+        users = users.distinct()
+
+    return render(request, 'user/partials/search.html', {
+        'users': users,
+        'query': query
+    })

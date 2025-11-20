@@ -21,6 +21,12 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = ['name', 'bio', 'profile_picture', 'thumbnail']
 
+class EmailChangeForm(forms.Form):
+    old_email = forms.EmailField(label="E-mail atual", max_length=254)
+    new_email = forms.EmailField(label="Novo e-mail", max_length=254)
+
+
+
 
 
 User = get_user_model()

@@ -1,0 +1,27 @@
+<table>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+
+            <td class="text-center align-middle">
+                <a href="{% url 'user-profile' user.id %}" class="btn btn-primary btn-circle">
+                    <i class="fas fa-eye" style="color: white"></i>
+                </a>
+            </td>
+
+            <td class="text-center align-middle">
+                <a href="{% url 'user-detail' user.id %}" class="btn btn-primary btn-circle">
+                    <i class="fas fa-eye" style="color: white"></i>
+                </a>
+            </td>
+        </tr>
+
+        {% empty %}
+        <tr>
+            <td colspan="4" class="text-center">Nenhum usuário encontrado.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -10,16 +10,15 @@ from .forms import GrupoForm
 
 @login_required
 def selecionar_membros(request):
-    # lista de usuários que eu sigo
     usuarios = request.user.seguindo.all().values_list('seguindo', flat=True)
     usuarios = User.objects.filter(pk__in=usuarios)
 
     if request.method == "POST":
-        membros_ids = request.POST.getlist("membros")  # IDs dos usuários selecionados
-        request.session['membros_selecionados'] = membros_ids  # salva na sessão
-        return redirect("criar_grupo")  # vai pra view de criar grupo
+        membros_ids = request.POST.getlist("membros")  
+        request.session['membros_selecionados'] = membros_ids  
+        return redirect("criar_grupo")  
 
-    return render(request, "grupos/membros.html", {"usuarios": usuarios})
+    return render(request, "grupo/membros.html", {"usuarios": usuarios})
 
 @login_required
 def criar_grupo(request):
@@ -27,52 +26,49 @@ def criar_grupo(request):
 
     if request.method == "POST":
         form = GrupoForm(request.POST, request.FILES)
-
         if form.is_valid():
             grupo = form.save(commit=False)
             grupo.administrador = request.user
             grupo.save()
-
-            # adiciona o usuário administrador
             GrupoMembro.objects.create(grupo=grupo, usuario=request.user)
 
-            # adiciona os membros selecionados
             for usuario_id in membros_ids:
                 usuario = User.objects.get(pk=usuario_id)
                 GrupoMembro.objects.create(grupo=grupo, usuario=usuario)
 
-            # cria o tópico geral automaticamente
             Topico.objects.create(
                 grupo=grupo,
                 nome="Tópico Geral",
                 criado_por=request.user,
                 livro=None
             )
-
-            # limpa a sessão
             if 'membros_selecionados' in request.session:
                 del request.session['membros_selecionados']
 
-            return redirect("grupo_detail", pk=grupo.pk)
+            return redirect("grupo_detail", pk=grupo.id)
 
     else:
         form = GrupoForm()
 
-    return render(request, "grupos/form.html", {"form": form, "button_text": "Criar Grupo"})
+    return render(request, "grupo/form.html", {"form": form, "button_text": "Criar Grupo"})
 
 @login_required
-def editar_grupo(request, grupo_id):
-    grupo = get_object_or_404(Grupo, id=grupo_id)
+def grupo_detail(request, pk):
+    grupo = get_object_or_404(Grupo, pk=pk)
+    return render(request, "grupo/grupo_detail.html", {"grupo": grupo})
 
-    # Apenas o administrador pode editar
+@login_required
+def editar_grupo(request, pk):
+    grupo = get_object_or_404(Grupo, id=pk)
+
     if request.user != grupo.administrador:
-        return redirect("home")  # ou mostrar erro 403
+        return redirect("home")  
 
     if request.method == "POST":
         form = GrupoForm(request.POST, request.FILES, instance=grupo)
         if form.is_valid():
             form.save()
-            return redirect("dashboard")  # ou a página do grupo
+            return redirect("grupo_detail", pk=grupo.id)  
     else:
         form = GrupoForm(instance=grupo)
 
@@ -83,20 +79,52 @@ def editar_grupo(request, grupo_id):
     })
 
 @login_required
-def chats_ajax(request):
-    print("Chats AJAX chamado")  # para debug no console do Django
-    chats = request.user.grupos_participando.all()  # pega os grupos/chats do usuário
-    return render(request, "chats/partials/chats_lista.html", {"chats": chats})
+def sair_grupo(request, pk):
+    grupo = get_object_or_404(Grupo, id=pk)
 
-def grupo_detail(request, pk):
-    grupo = get_object_or_404(Grupo, pk=pk)
-    return render(request, "chats/grupo_detail.html", {"grupo": grupo})
+    if request.user == grupo.administrador:
+        novo_membro_info = grupo.membros_info.exclude(usuario=request.user).first()
+        
+        if novo_membro_info:
+            grupo.administrador = novo_membro_info.usuario
+            grupo.save()
+        else:
+            grupo.delete()
+            return redirect("home")
 
-def chat_detail(request, topico_id):
-    chat = get_object_or_404(Topico, id=topico_id)
-    mensagens = chat.mensagens.all()
+        GrupoMembro.objects.filter(grupo=grupo, usuario=request.user).delete()
 
-    return render(request, "chats/topico_detail.html", {
-        "chat": chat,
-        "mensagens": mensagens
+        return redirect("home")
+
+    membro = get_object_or_404(GrupoMembro, grupo=grupo, usuario=request.user)
+    membro.delete()
+    return redirect("home")
+
+
+@login_required
+def adicionar_membros(request, pk):
+    grupo = get_object_or_404(Grupo, id=pk)
+
+    if request.user != grupo.administrador:
+        return redirect("grupo_detail", pk=pk)
+
+    seguindo_ids = request.user.seguindo.all().values_list('seguindo', flat=True)
+    usuarios = User.objects.filter(pk__in=seguindo_ids).exclude(
+        id__in=grupo.membros_info.values_list("usuario_id", flat=True)
+    )
+
+    if request.method == "POST":
+        membros_ids = request.POST.getlist("membros")
+        membros_ids = [uid for uid in membros_ids if uid in map(str, seguindo_ids)]
+
+        for usuario_id in membros_ids:
+            usuario = User.objects.get(pk=usuario_id)
+            GrupoMembro.objects.get_or_create(grupo=grupo, usuario=usuario)
+
+        return redirect("grupo_detail", pk=grupo.id)
+
+    return render(request, "grupo/membros.html", {
+        "usuarios": usuarios,
+        "grupo": grupo,
     })
+

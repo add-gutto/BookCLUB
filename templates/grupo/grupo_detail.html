@@ -24,11 +24,11 @@
 
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownFiltro">
-                        <li><a class="dropdown-item" href="#" data-filtro="todos">Add Membro</a></li>
+                        <li><a class="dropdown-item" href="{% url 'adicionar_membros' grupo.id %}" data-filtro="todos}" data-filtro="todos">Add Membro</a></li>
                         <li><a class="dropdown-item" href="#" data-filtro="seguindo">Criar Tópico</a></li>
                         <li><a class="dropdown-item" href="#" data-filtro="seguidores">Denunciar</a></li>
-                        <li><a class="dropdown-item" href="#" data-filtro="novos">Configurações do Grupo</a></li>
-                        <li><a class="dropdown-item" href="#" data-filtro="novos">Sair do Grupo</a></li>
+                        <li><a class="dropdown-item" href="{% url 'editar_grupo' grupo.id %}" data-filtro="novos">Configurações do Grupo</a></li>
+                        <li><a class="dropdown-item" href="{% url 'sair_grupo' grupo.id %}" data-filtro="novos">Sair do Grupo</a></li>
                         
                     </ul>
                 </div>

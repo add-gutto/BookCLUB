@@ -26,7 +26,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email", "password", "name"]
 
     def create(self, validated_data):
-        # Corrigido: usar colchetes ou .get()
         user = User.objects.create_user(
             username=validated_data.get("username"),
             email=validated_data.get("email"),
@@ -34,7 +33,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data.get("password"),
         )
         return user
-
 
 
 class LoginSerializer(serializers.Serializer):

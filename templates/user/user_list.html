@@ -13,7 +13,7 @@
     <!-- Card de Tabela -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 justify-content-between d-flex">
-            <form id="search-form"
+            <form id="search-form" data-url="{% url 'user_search' %}"
                   class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                 {% csrf_token %}
                 <div class="input-group">

@@ -3,9 +3,9 @@ from django.contrib.auth import views as auth_views
 from . import views
 from .views import (
     UserLoginView, UserLogoutView, UserPasswordChangeView,
-    UserPasswordResetView, UserPasswordResetConfirmView, UserPasswordResetCompleteView,
+    UserPasswordResetView, UserPasswordResetConfirmView, 
     UserListView, UserDetailView, UserCreateView, 
-    UserStatusActiveView, EditProfileView, UserProfileView, UserAdminView,
+    UserStatusActiveView, EditProfileView, UserProfileView, UserAdminView
 )
 from .viewsAPI import (
     RegisterAPIView, LoginAPIView, LogoutAPIView, ChangePasswordAPIView,
@@ -21,7 +21,7 @@ urlpatterns = [
     path('api/logout/', LogoutAPIView.as_view(), name='api-logout'),
     path('api/profile/', ProfileAPIView.as_view(), name='api-profile'),
     path('api/password/change/', ChangePasswordAPIView.as_view(), name='api-change-password'),
-   path('api/password/reset/request/', PasswordResetRequestAPIView.as_view(), name='api-password-reset-request'),
+    path('api/password/reset/request/', PasswordResetRequestAPIView.as_view(), name='api-password-reset-request'),
 
 
     # ----------------------------
@@ -40,11 +40,11 @@ urlpatterns = [
     # Senha
     path('password/reset/', UserPasswordResetView.as_view(), name='password_reset'),
     path('password/reset/<uidb64>/<token>/', UserPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('password/reset/done/', UserPasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('password/change/', UserPasswordChangeView.as_view(), name='change-password'),
 
     # Perfil
     path('profile/<int:pk>/', UserProfileView.as_view(), name='user-profile'),
     path('profile/editar/', EditProfileView.as_view(), name='editar_profile'),
     path("seguir/<int:user_id>/", views.seguir_usuario, name="seguir_usuario"),
+    path('search/', views.search_users, name='user_search'),
 ]
