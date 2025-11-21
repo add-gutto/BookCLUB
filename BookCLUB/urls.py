@@ -54,6 +54,7 @@ urlpatterns = [
     path("grupo/", include("grupo.urls")),
     path("livro/", include("livro.urls")),
     path("chat/", include("chat.urls")),
+    path('denuncias/', include('denuncia.urls')),
 ]
 
 if settings.DEBUG:

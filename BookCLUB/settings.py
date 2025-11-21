@@ -62,7 +62,8 @@ INSTALLED_APPS = [
     "user",
     "grupo",
     "chat",
-    "livro"
+    "livro",
+    "denuncia",
 ]
 AUTH_USER_MODEL = "user.User"
 

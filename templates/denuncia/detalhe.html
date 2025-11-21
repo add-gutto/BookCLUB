@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <h1 class="h3 mb-4 text-gray-800">Detalhe da Denúncia #{{ denuncia.id }}</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+
+            <p><strong>Título:</strong> {{ denuncia.titulo }}</p>
+            <p><strong>Descrição:</strong><br>{{ denuncia.descricao }}</p>
+
+            <p><strong>Autor:</strong>
+                {% if denuncia.autor %}
+                    {{ denuncia.autor.username }}
+                {% else %}
+                    Anônimo
+                {% endif %}
+            </p>
+
+            <p><strong>Status:</strong>
+                <span class="badge bg-info">{{ denuncia.status }}</span>
+            </p>
+
+            <p><strong>Alvo:</strong> {{ denuncia.alvo_tipo }} #{{ denuncia.alvo_id }}</p>
+            <p><strong>Data:</strong> {{ denuncia.created_at|date:"d/m/Y H:i" }}</p>
+
+            <hr>
+
+            <form method="POST" action="{% url 'denuncia:atualizar_status' denuncia.id %}">
+                {% csrf_token %}
+
+                <label for="status" class="form-label">Alterar status</label>
+                <select name="status" class="form-select w-50 mb-3">
+                    {% for valor, texto in denuncia.STATUS_CHOICES %}
+                    <option value="{{ valor }}" {% if valor == denuncia.status %}selected{% endif %}>
+                        {{ texto }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <button class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Atualizar
+                </button>
+
+                <a href="{% url 'denuncia:lista' %}" class="btn btn-secondary ms-2">
+                    Voltar
+                </a>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
