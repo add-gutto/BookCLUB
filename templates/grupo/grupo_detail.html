@@ -1,45 +1,49 @@
 {% extends "_base.html" %}
 {% load static %}
+
 {% block content %}
 <div class="chat-main d-flex flex-column vh-100" id="chatMain">
-            <div class="chat-header bg-light">
-                <div class="back-chat-auth">
-                    <button class="mobile-back-btn" id="mobileBackBtn">
-                        <i class="fas fa-arrow"></i>
-                    </button>
-                    <div class="chat-user-info" id="chatUserInfo">
-                        <img  src="{% if grupo.imagem %}{{ grupo.imagem.url }}{%else %}{% static 'template/img/placeholder.jpg' %}{% endif %}" class="chat-avatar currentChatAvatar rounded-circle" width="50" height="50" style="object-fit: cover;">
-                        <div class="chat-user-details">
-                            <h3 class="currentChatName fs-5">{{grupo.nome}}</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="chat-actions position-relative">
-                    <div class="ms-2 dropdown">
-                    <button class="btn d-flex align-items-center justify-content-center" type="button" id="dropdownFiltro"
-                        data-bs-toggle="dropdown" aria-expanded="false"
-                        style="height: 60px; width: 60px; background: none; border: none;">
-                        <i class="fas fa-ellipsis-h fs-5"></i>
-
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownFiltro">
-                        <li><a class="dropdown-item" href="{% url 'adicionar_membros' grupo.id %}" data-filtro="todos}" data-filtro="todos">Add Membro</a></li>
-                        <li><a class="dropdown-item" href="#" data-filtro="seguindo">Criar Tópico</a></li>
-                        <li><a class="dropdown-item" href="#" data-filtro="seguidores">Denunciar</a></li>
-                        <li><a class="dropdown-item" href="{% url 'editar_grupo' grupo.id %}" data-filtro="novos">Configurações do Grupo</a></li>
-                        <li><a class="dropdown-item" href="{% url 'sair_grupo' grupo.id %}" data-filtro="novos">Sair do Grupo</a></li>
-                        
-                    </ul>
-                </div>
+    <!-- Cabeçalho do grupo -->
+    <div class="chat-header bg-light">
+        <div class="back-chat-auth">
+            <button class="mobile-back-btn" id="mobileBackBtn">
+                <i class="fas fa-arrow"></i>
+            </button>
+            <div class="chat-user-info" id="chatUserInfo">
+                <img src="{% if grupo.imagem %}{{ grupo.imagem.url }}{% else %}{% static 'template/img/placeholder.jpg' %}{% endif %}" 
+                     class="chat-avatar currentChatAvatar rounded-circle" width="50" height="50" style="object-fit: cover;">
+                <div class="chat-user-details">
+                    <h3 class="currentChatName fs-5">{{ grupo.nome }}</h3>
                 </div>
             </div>
-            <div class="list-group list-group-flush m-1" >
-                {% for topico in grupo.topicos.all %}
-                <a class="list-group-item list-group-item-action d-flex align-items-center justify-content-between" href="{% url 'chat_detail' topico.id %}" >
-                    <span class="fs-5 fw-semibold" ># {{topico.nome}}</span>
-                </a>
-                {% endfor%}
-    </div>
         </div>
+
+        <div class="chat-actions position-relative">
+            <div class="ms-2 dropdown">
+                <button class="btn d-flex align-items-center justify-content-center" type="button" id="dropdownFiltro"
+                        data-bs-toggle="dropdown" aria-expanded="false" style="height: 60px; width: 60px; background: none; border: none;">
+                    <i class="fas fa-ellipsis-h fs-5"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownFiltro">
+                    <li><a class="dropdown-item" href="{% url 'adicionar_membros' grupo.id %}">Adicionar Membro</a></li>
+                    <li><a class="dropdown-item" href="{% url 'livro:buscar_livro_pagina' grupo.id %}">Criar Tópico</a></li>
+                    <li><a class="dropdown-item" href="#" data-filtro="seguidores">Denunciar</a></li>
+                    <li><a class="dropdown-item" href="{% url 'editar_grupo' grupo.id %}">Configurações do Grupo</a></li>
+                    <li><a class="dropdown-item" href="{% url 'sair_grupo' grupo.id %}">Sair do Grupo</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de tópicos -->
+    <div class="list-group list-group-flush m-1" id="lista-topicos">
+        {% for topico in grupo.topicos.all %}
+        <a class="list-group-item list-group-item-action d-flex align-items-center justify-content-between" href="{% url 'chat_detail' topico.id %}">
+            <span class="fs-5 fw-semibold"># {{ topico.nome }}</span>
+        </a>
+        {% empty %}
+        <div class="text-center text-muted p-3">Nenhum tópico criado ainda.</div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

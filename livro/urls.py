@@ -1,11 +1,12 @@
-# app/urls.py
 from django.urls import path
-from .views import (
-    buscar_livros_api,
-    criar_topico_com_livro
-)
+from . import views
+
+app_name = "livro"
 
 urlpatterns = [
-    path("buscar/", buscar_livros_api, name="buscar_livros_api"),
-    path("topicos/criar-com-livro/<int:grupo_id>/", criar_topico_com_livro, name="criar_topico_com_livro"),
+    path("buscar/<int:grupo_id>/", views.buscar_livro_pagina,
+         name="buscar_livro_pagina"),
+    path("api/buscar-livros/", views.buscar_livros_api, name="buscar_livros_api"),
+    path("api/criar-topico/<int:grupo_id>/",
+         views.criar_topico_com_livro, name="criar_topico_com_livro"),
 ]

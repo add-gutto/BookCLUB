@@ -60,7 +60,7 @@ class GrupoMembro(models.Model):
 
 class Topico(models.Model):
     grupo = models.ForeignKey(
-        Grupo,
+        "Grupo",
         on_delete=models.CASCADE,
         related_name="topicos"
     )
@@ -80,9 +80,23 @@ class Topico(models.Model):
         related_name="topicos_criados"
     )
 
+    class Meta:
+        ordering = ['criado_em']
+
     def __str__(self):
         return f"{self.nome} — {self.grupo.nome}"
-    
+
+    # Métodos úteis
+    def qtd_mensagens(self):
+        return self.mensagens.count()
+
+    def tem_spoilers(self):
+        return self.mensagens.filter(is_spoiler=True).exists()
+
+    def ultima_mensagem(self):
+        return self.mensagens.order_by('-criado_em').first()
+
+
 class Mensagem(models.Model):
     topico = models.ForeignKey(
         Topico,

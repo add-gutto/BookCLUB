@@ -14,7 +14,6 @@ from pathlib import Path
 from decouple import config, Csv
 
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -47,7 +46,6 @@ CSRF_TRUSTED_ORIGINS = config(
 )
 
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -57,7 +55,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-     "rest_framework",
+    "rest_framework",
     "rest_framework.authtoken",
     "drf_yasg",
     "channels",
@@ -80,11 +78,9 @@ CHANNEL_LAYERS = {
 }
 
 
-
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -107,7 +103,7 @@ ROOT_URLCONF = "BookCLUB.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"], 
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -169,21 +165,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-#configurações de arquivos estáticos
+# configurações de arquivos estáticos
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR/'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-#configurações de media
+# configurações de media
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-#redirecionamento de login
+# redirecionamento de login
 LOGIN_URL = "/user/login/"
 LOGOUT_REDIRECT_URL = "/user/login/"
 
-#configurações de email
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+# configurações de email
+EMAIL_BACKEND = config(
+    'EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT = config('EMAIL_PORT', cast=int, default=587)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=True)
@@ -191,10 +188,10 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
 
-#definições do web
+# definições do web
 APP_NAME = config('APP_NAME', default='BookCLUB')
-#APP_DOMAIN = config('APP_DOMAIN', default='localhost:8000')
-#APP_PROTOCOL = config('APP_PROTOCOL', default='http')  # 'https' em produção
+# APP_DOMAIN = config('APP_DOMAIN', default='localhost:8000')
+# APP_PROTOCOL = config('APP_PROTOCOL', default='http')  # 'https' em produção
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

@@ -1,49 +1,74 @@
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from django.shortcuts import get_object_or_404
 
 from .models import Livro
 from grupo.models import Grupo, Topico
-from .serializers import LivroSerializer, TopicoSerializer
+from .serializers import TopicoSerializer
 from .external.google_books import buscar_livros_google
 
+# Página para buscar livros e criar tópico
 
-# 1️⃣ Buscar livros na API Google Books
+
+@login_required
+def buscar_livro_pagina(request, grupo_id):
+    grupo = get_object_or_404(Grupo, id=grupo_id)
+    return render(request, "livro/buscarLivro.html", {"grupo": grupo})
+
+# API que retorna livros da Google Books
+
+
 @api_view(["GET"])
-@permission_classes([AllowAny])  # <<< AGORA QUALQUER UM PODE ACESSAR
+@permission_classes([AllowAny])
 def buscar_livros_api(request):
     q = request.GET.get("q")
-
     if not q:
         return Response({"erro": "Parâmetro 'q' é obrigatório."}, status=400)
-
     resultados = buscar_livros_google(q)
     return Response(resultados)
 
+# API que cria tópico usando livro
 
-# 2️⃣ Criar Tópico já vinculado a um livro da API externa
+
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def criar_topico_com_livro(request, grupo_id):
     grupo = get_object_or_404(Grupo, id=grupo_id)
 
     livro_dados = request.data.get("livro")
-    if not livro_dados:
-        return Response({"erro": "Campo 'livro' é obrigatório."}, status=400)
+    if not livro_dados or not livro_dados.get("identificador_api"):
+        return Response({"erro": "Livro precisa de identificador_api."}, status=400)
 
-    livro, _ = Livro.objects.get_or_create(
-        titulo=livro_dados.get("titulo"),
-        autor=livro_dados.get("autor"),
-        ano_publicacao=livro_dados.get("ano_publicacao"),
+    # ⚡ get_or_create pelo identificador_api
+    livro, created = Livro.objects.get_or_create(
+        identificador_api=livro_dados["identificador_api"],
+        defaults={
+            "titulo": livro_dados.get("titulo"),
+            "autor": livro_dados.get("autor"),
+            "descricao": livro_dados.get("descricao"),
+            "capa": livro_dados.get("capa"),
+            "ano_publicacao": livro_dados.get("ano_publicacao"),
+        }
     )
 
+    # ⛔ VERIFICAÇÃO IMPORTANTE
+    # Evita criar tópico duplicado no mesmo grupo
+    if Topico.objects.filter(grupo=grupo, livro=livro).exists():
+        return Response(
+            {"erro": "Este livro já possui um tópico neste grupo."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Cria o tópico com o nome do livro
     topico = Topico.objects.create(
         grupo=grupo,
-        nome=request.data.get("nome"),
-        descricao=request.data.get("descricao"),
+        nome=livro.titulo,
         criado_por=request.user,
-        livro=livro,
+        livro=livro
     )
 
-    return Response(TopicoSerializer(topico).data, status=status.HTTP_201_CREATED)
+    serializer = TopicoSerializer(topico)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
