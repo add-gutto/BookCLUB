@@ -115,6 +115,7 @@ class Mensagem(models.Model):
     capitulo = models.PositiveIntegerField(null=True, blank=True)
     is_spoiler = models.BooleanField(default=False)
     criado_em = models.DateTimeField(auto_now_add=True)
+    lidos_por = models.ManyToManyField(User, blank=True, related_name="mensagens_lidas")
 
     class Meta:
         ordering = ["criado_em"]

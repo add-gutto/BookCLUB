@@ -7,7 +7,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# Expor a porta usada pelo Daphne
 EXPOSE 8000
 
-
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Rodar o servidor ASGI oficial
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "BookCLUB.asgi:application"]

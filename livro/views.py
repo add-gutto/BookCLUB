@@ -16,9 +16,7 @@ from .external.google_books import buscar_livros_google
 @login_required
 def buscar_livro_pagina(request, grupo_id):
     grupo = get_object_or_404(Grupo, id=grupo_id)
-    return render(request, "livro/buscarLivro.html", {"grupo": grupo})
-
-# API que retorna livros da Google Books
+    return render(request, "livro/search-livro.html", {"grupo": grupo})
 
 
 @api_view(["GET"])
@@ -29,8 +27,6 @@ def buscar_livros_api(request):
         return Response({"erro": "Parâmetro 'q' é obrigatório."}, status=400)
     resultados = buscar_livros_google(q)
     return Response(resultados)
-
-# API que cria tópico usando livro
 
 
 @api_view(["POST"])
@@ -54,15 +50,12 @@ def criar_topico_com_livro(request, grupo_id):
         }
     )
 
-    # ⛔ VERIFICAÇÃO IMPORTANTE
-    # Evita criar tópico duplicado no mesmo grupo
     if Topico.objects.filter(grupo=grupo, livro=livro).exists():
         return Response(
             {"erro": "Este livro já possui um tópico neste grupo."},
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Cria o tópico com o nome do livro
     topico = Topico.objects.create(
         grupo=grupo,
         nome=livro.titulo,

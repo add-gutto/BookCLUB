@@ -128,3 +128,44 @@ def adicionar_membros(request, pk):
         "grupo": grupo,
     })
 
+@login_required
+def search(request):
+    return render(request, "search.html")
+
+@login_required
+def search_ajax(request):
+    query = request.GET.get('q', '')
+    tipo = request.GET.get('tipo', 'grupo')
+
+    results = []
+
+    if query:
+        # Buscar GRUPOS
+        if tipo == 'grupo':
+            grupos = Grupo.objects.filter(privado=False, nome__icontains=query)[:20]
+            for g in grupos:
+                results.append({
+                    'id': g.id,
+                    'nome': g.nome,
+                    'imagem': g.imagem.url if g.imagem else '/static/template/img/placeholder.jpg',
+                    'tipo': 'grupo'
+                })
+
+        # Buscar USUÁRIOS
+        elif tipo == 'usuario':
+            usuarios = User.objects.filter(username__icontains=query)[:20]
+            for u in usuarios:
+                foto = '/static/template/img/placeholder.jpg'
+                if hasattr(u, "profile") and u.profile.profile_picture:
+                    foto = u.profile.profile_picture.url
+
+                results.append({
+                    'id': u.id,
+                    'nome': u.profile.name if hasattr(u, "profile") else u.username,
+                    'username': u.username,
+                    'imagem': foto,
+                    'tipo': 'usuario'
+                })
+
+    return JsonResponse({'results': results})
+

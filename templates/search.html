@@ -1,0 +1,44 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="container my-5">
+    <div class="content col-lg-8">
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Campo de busca -->
+            <div class="d-flex align-items-start mb-4">
+                <div class="input-group flex-grow-1" style="height: 60px;">
+                    <input type="text" id="campo-busca" class="form-control rounded" placeholder="Buscar..."
+                        style="height: 60px; font-size: 1.1rem;" data-url="{% url 'search_ajax' %}">
+
+                    <span class="input-group-text border-0 bg-transparent"
+                        style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                        <i class="fas fa-search fs-5"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Botões de seleção -->
+            <div class="d-flex mb-4 gap-1">
+                <button type="button" class="btn btn-primary tipo-btn col-lg-6" id="btn-grupo">
+                    Grupo
+                </button>
+
+                <button type="button" class="btn btn-secondary tipo-btn col-lg-6" id="btn-usuario">
+                    Usuário
+                </button>
+            </div>
+
+            <!-- Lista de resultados -->
+            <ul id="lista" class="list-group"></ul>
+
+        </form>
+
+    </div>
+</section>
+
+{% endblock %}

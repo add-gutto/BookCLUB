@@ -79,6 +79,31 @@
   --bs-highlight-bg: #fff3cd;
 }
 
+.spoiler-blurred {
+        filter: blur(6px);
+        transition: 0.2s ease;
+        user-select: none;
+    }
+
+    .spoiler-blurred.revealed {
+        filter: none;
+        user-select: text;
+    }
+
+    /* Botão transparente sem borda */
+    .spoiler-btn {
+        background: transparent;
+        border: none;
+        padding: 0;
+        color: var(--bs-primary);
+        font-size: 0.85rem;
+        cursor: pointer;
+    }
+
+    .spoiler-btn:hover {
+        text-decoration: underline;
+    }
+
 *,
 *::before,
 *::after {

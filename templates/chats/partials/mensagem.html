@@ -1,0 +1,104 @@
+{% load static %}
+
+{% if msg.usuario and msg.usuario.id == user_id %}
+<!-- ========================== -->
+<!--  MENSAGEM ENVIADA POR VOCÊ -->
+<!-- ========================== -->
+<div class="message sent" data-message-id="{{ msg.id }}">
+    <div class="message-wrapper">
+        <div class="message-content">
+
+            {% if msg.imagem %}
+            <div class="image-message mt-2">
+                <img src="{{ msg.imagem.url }}" alt="Imagem" loading="lazy" >
+            </div>
+            {% endif %}
+
+            <div class="message-text mt-1">
+                {{ msg.conteudo }}
+            </div>
+
+        </div>
+
+        <div class="message-timestamp">
+            {{ msg.criado_em|date:"H:i" }}
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- ========================== -->
+<!--     MENSAGEM RECEBIDA      -->
+<!-- ========================== -->
+<div class="d-flex align-items-end gap-2 message received" data-message-id="{{ msg.id }}">
+
+    <!-- Avatar -->
+    <img class="img-profile rounded-circle"
+         src="{% if msg.usuario and msg.usuario.profile.profile_picture %}
+                {{ msg.usuario.profile.profile_picture.url }}
+              {% else %}
+                {% static 'template/img/placeholder.jpg' %}
+              {% endif %}"
+         width="40" height="40" style="object-fit: cover;">
+
+    <div class="message-wrapper">
+        <div class="message-content">
+
+            {% if msg.usuario %}
+            <a href="{% url 'user-profile' msg.usuario.id %}">
+                <span class="d-none d-lg-inline text-gray-600 me-2">
+                    {{ msg.usuario.username }}
+                </span>
+            </a>
+            {% endif %}
+
+            {% if msg.imagem %}
+            <div class="image-message mt-2">
+                <img src="{{ msg.imagem.url }}" alt="Imagem" loading="lazy">
+            </div>
+            {% endif %}
+
+            {% if msg.conteudo %}
+            
+            {% if msg.is_spoiler %}
+            <!-- ========== SPÓILER RECEBIDO (BLUR) ========== -->
+            <div class="spoiler-box mt-2  position-relative">
+
+                <div class="spoiler-blurred p-3" id="spoiler-{{ msg.id }}">
+                    {{ msg.conteudo }}
+                </div>
+
+                <button class="btnMostrarSpoiler mt-1"
+                    data-target="spoiler-{{ msg.id }}"
+                    style="
+                        position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                        background: transparent;
+                        border: none;
+                        color: var(--primary-color);
+                        padding: 0;
+                        font-size: 0.9rem;
+                        cursor: pointer;
+                    ">
+                    spoiler do cap. {{ msg.capitulo }}
+                </button>
+
+            </div>
+
+            {% else %}
+            <div class="message-text mt-1">
+                {{ msg.conteudo }}
+            </div>
+            {% endif %}
+
+            {% endif %}
+        </div>
+
+        <div class="message-timestamp">
+            {{ msg.criado_em|date:"H:i" }}
+        </div>
+    </div>
+</div>
+{% endif %}

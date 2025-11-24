@@ -1,9 +1,9 @@
 import requests
-
+from decouple import config
 
 def buscar_livros_google(query):
-    url = "https://www.googleapis.com/books/v1/volumes"
-    params = {"q": query, "maxResults": 12}  # ⚡ máximo 12 resultados
+    url = config('API_DOMAIN')
+    params = {"q": query, "maxResults": 20}  
     r = requests.get(url, params=params)
     data = r.json()
     livros = []
@@ -16,7 +16,7 @@ def buscar_livros_google(query):
             "descricao": volume_info.get("description", ""),
             "ano_publicacao": volume_info.get("publishedDate", ""),
             "capa": volume_info.get("imageLinks", {}).get("thumbnail", ""),
-            "identificador_api": item.get("id")  # ⚡ obrigatório
+            "identificador_api": item.get("id")  
         })
 
     return livros

@@ -9,7 +9,7 @@ class Livro(models.Model):
     ano_publicacao = models.CharField(max_length=20, blank=True, null=True)
     identificador_api = models.CharField(
         max_length=50, unique=True
-    )  # ⚡ obrigatório e único
+    )  
 
     def __str__(self):
         return self.titulo
