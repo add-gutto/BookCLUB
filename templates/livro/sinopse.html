@@ -1,0 +1,32 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+
+    <button onclick="history.back()" class="btn bg-transparent border-0 mb-3 text-dark">
+        <i class="fas fa-chevron-left fs-5"></i>
+    </button>
+
+    <div class="text-center mb-4">
+        <img src="{{ livro.capa }}" alt="{{ livro.titulo }}"
+             class="img-fluid rounded shadow"
+             style="max-width: 200px; width: 100%; height: auto; object-fit: contain;">
+    </div>
+
+    <!-- Título centralizado -->
+    <h2 class="fw-bold text-center mb-2">{{ livro.titulo }}</h2>
+
+    <!-- Autor à esquerda e páginas à direita -->
+    <div class="d-flex justify-content-between text-muted mb-4">
+        <span>{{ livro.autor }}</span>
+        <span><i class="far fa-file-alt"></i> {{ livro.paginas }} páginas</span>
+    </div>
+
+    <div class="text-dark">
+        <h4 class="mt-4 fw-bold">Sinopse</h4>
+        <p>{{ livro.sinopse }}</p>
+    </div>
+
+</div>
+{% endblock %}

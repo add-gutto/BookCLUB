@@ -4,6 +4,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+import requests
+
 
 from .models import Livro
 from grupo.models import Grupo, Topico
@@ -65,3 +67,31 @@ def criar_topico_com_livro(request, grupo_id):
 
     serializer = TopicoSerializer(topico)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+def livro_detail(request, identificador_api):
+    # Exemplo: buscar via API do Google Books
+    url = f'https://www.googleapis.com/books/v1/volumes/{identificador_api}'
+    resp = requests.get(url)
+
+    if resp.status_code == 200:
+        data = resp.json()
+        livro = {
+            "titulo": data['volumeInfo'].get('title', ''),
+            "autor": ', '.join(data['volumeInfo'].get('authors', [])),
+            "sinopse": data['volumeInfo'].get('description', ''),
+            "paginas": data['volumeInfo'].get('pageCount', ''),
+            "capa": data['volumeInfo'].get('imageLinks', {}).get('thumbnail', ''),
+            "identificador_api": identificador_api
+        }
+    else:
+        livro = {
+            "titulo": "Livro não encontrado",
+            "autor": "",
+            "sinopse": "",
+            "paginas": "",
+            "capa": "/static/template/img/placeholder.jpg",
+            "identificador_api": identificador_api
+        }
+
+    return render(request, 'livro/sinopse.html', {'livro': livro})

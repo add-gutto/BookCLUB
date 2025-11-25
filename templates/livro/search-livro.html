@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block content %}
+
 <form id="csrfForm" style="display:none;">{% csrf_token %}</form>
 
 <div class="container py-4">
@@ -12,19 +13,30 @@
         <h3 class="mb-0 fw-bold">Novo Tópico</h3>
     </div>
 
+    <!-- Campo de busca -->
     <div class="content col-lg-8 my-4">
         <div class="d-flex align-items-start mb-4">
             <div class="input-group flex-grow-1" style="height: 60px;">
-                <input type="text" id="inputBusca" class="form-control rounded" placeholder="Buscar Livro..."
-                    style="height: 60px; font-size: 1.1rem;">
+                <input type="text"
+                       id="inputBusca"
+                       class="form-control rounded"
+                       placeholder="Buscar Livro..."
+                       style="height: 60px; font-size: 1.1rem;">
                 <span class="input-group-text border-0 bg-transparent"
-                    style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                      style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer;">
                     <i class="fas fa-search fs-5" id="btnBuscar"></i>
                 </span>
             </div>
         </div>
     </div>
 
-    <div id="resultadoLivros" class="row gy-3" data-grupo-id="{{ grupo.id }}"></div>
+    <!-- Resultados -->
+    <div id="resultadoLivros"
+         class="row gy-3"
+         data-grupo-id="{{ grupo.id }}"></div>
 </div>
+
+<!-- Importar JS -->
+<script src="{% static 'js/livro-ajax.js' %}"></script>
+
 {% endblock %}
