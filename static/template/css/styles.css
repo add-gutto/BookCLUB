@@ -10856,8 +10856,6 @@ textarea.form-control-lg {
 #sidebar-wrapper {
   position: fixed;        
   min-height: 100vh;
-  margin-left: -20rem;
-  transition: margin 0.25s ease-out;
   overflow-y: auto;       /* rolagem vertical apenas no sidebar */
   overflow-x: hidden;    /* desativa rolagem horizontal no sidebar */
     z-index: 1000;

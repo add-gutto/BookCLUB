@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -6,8 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 import requests
 
-
-from .models import Livro
+from .models import Livro, Resenha
 from grupo.models import Grupo, Topico
 from .serializers import TopicoSerializer
 from .external.google_books import buscar_livros_google
@@ -68,7 +67,7 @@ def criar_topico_com_livro(request, grupo_id):
     serializer = TopicoSerializer(topico)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
+@login_required
 def livro_detail(request, identificador_api):
     # Exemplo: buscar via API do Google Books
     url = f'https://www.googleapis.com/books/v1/volumes/{identificador_api}'
@@ -95,3 +94,30 @@ def livro_detail(request, identificador_api):
         }
 
     return render(request, 'livro/sinopse.html', {'livro': livro})
+
+@login_required
+def resenha_form(request, id):
+    livro = get_object_or_404(Livro, id=id)
+
+    resenha_existente = Resenha.objects.filter(
+        usuario=request.user, livro=livro
+    ).first()
+
+    if request.method == "POST" and not resenha_existente:
+        nota = int(request.POST.get("nota") or 0)
+        comentario = request.POST.get("comentario", "")
+
+        Resenha.objects.create(
+            usuario=request.user,
+            livro=livro,
+            nota=nota,
+            comentario=comentario
+        )
+
+        return redirect("livro:livro_detail", identificador_api=livro.identificador_api)
+
+    return render(request, "livro/resenha_form.html", {
+        "livro": livro,
+        "resenha_existente": resenha_existente,
+        "stars": range(1, 6),  # 1..5
+    })

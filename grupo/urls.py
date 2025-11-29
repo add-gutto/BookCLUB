@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from . import viewsAPI
+from .viewsAPI import SearchAPIView
 
 urlpatterns = [
     # criar grupo
@@ -11,5 +13,12 @@ urlpatterns = [
     path("add/membros/<int:pk>/", views.adicionar_membros, name="adicionar_membros"),
     path("search/", views.search, name="search"),
     path("search/ajax/", views.search_ajax, name="search_ajax"),
+
+    path('api/search/', SearchAPIView.as_view(), name='search_api'),
+    path("api/grupos/<int:id>/topicos/", viewsAPI.listar_topicos_grupo),
+    path("api/membros/selecionar/", viewsAPI.selecionar_membros),
+    path("api/criar/", viewsAPI.criar_grupo, name="api_criar_grupo"),
+    path("api/editar/<int:id>/", viewsAPI.editar_grupo, name="api_editar_grupo"),
+    path("api/sair/<int:id>/", viewsAPI.sair_grupo, name="api_sair_grupo"),
 
 ]

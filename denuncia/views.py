@@ -6,7 +6,7 @@ from django.db import models
 from django.views.decorators.http import require_POST
 from .models import Denuncia
 
-
+@login_required
 def criar_denuncia(request):
     if request.method == "POST":
         titulo = request.POST.get("titulo", "").strip()
@@ -35,7 +35,7 @@ def criar_denuncia(request):
 def is_staff(user):
     return user.is_authenticated and user.is_staff
 
-
+@login_required
 @user_passes_test(is_staff)
 def lista_denuncias(request):
     busca = request.GET.get("q", "").strip()
@@ -63,13 +63,13 @@ def lista_denuncias(request):
         "status_filtro": status_filtro,
     })
 
-
+@login_required
 @user_passes_test(is_staff)
 def detalhe_denuncia(request, pk):
     denuncia = get_object_or_404(Denuncia, pk=pk)
     return render(request, "denuncia/detalhe.html", {"denuncia": denuncia})
 
-
+@login_required
 @user_passes_test(is_staff)
 @require_POST
 def atualizar_status(request, pk):
@@ -84,7 +84,7 @@ def atualizar_status(request, pk):
 
     return redirect("denuncia:detalhe", pk=pk)
 
-
+@login_required
 @user_passes_test(is_staff)
 def ajax_busca_denuncias(request):
     busca = request.GET.get("q", "").strip()

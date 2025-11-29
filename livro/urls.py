@@ -11,4 +11,7 @@ urlpatterns = [
          views.criar_topico_com_livro, name="criar_topico_com_livro"),
     path('<str:identificador_api>/', views.livro_detail, name='livro_detail'),
 
+    #Resenhas
+    path('resenha/<int:id>/', views.resenha_form, name='resenha_form')
+
 ]

@@ -5,12 +5,11 @@ from grupo.models import Topico, Mensagem
 
 @login_required
 def chats_ajax(request):
-    print("Chats AJAX chamado")  # Debug
+    print("Chats AJAX chamado")  
 
     chats_data = []
 
     for chat in request.user.grupos_participando.all():
-        # Todas as mensagens dos tópicos do grupo que o usuário ainda não leu
         mensagens_nao_lidas = Mensagem.objects.filter(
             topico__grupo=chat
         ).exclude(
@@ -26,7 +25,7 @@ def chats_ajax(request):
         "chats_data": chats_data
     })
 
-
+@login_required
 def chat_detail(request, topico_id):
     chat = get_object_or_404(Topico, id=topico_id)
     mensagens = chat.mensagens.all()

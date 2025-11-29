@@ -39,8 +39,6 @@ class GrupoMembro(models.Model):
         related_name="grupos_info"
     )
     data_entrada = models.DateTimeField(auto_now_add=True)
-
-    # ordem obrigatoriamente precisa permitir null
     ordem = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:

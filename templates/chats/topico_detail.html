@@ -71,7 +71,14 @@
 
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownFiltro">
                     <li><a class="dropdown-item" href="#" data-filtro="todos">Sobre Livro</a></li>
-                    <li><a class="dropdown-item" href="#" data-filtro="seguindo">Avaliar Livro</a></li>
+                  {% if chat.nome != "Tópico Geral" %}
+    <li>
+        <a href="{% url 'livro:resenha_form' chat.livro.id %}" class="dropdown-item" data-filtro="seguindo">
+            Avaliar Livro
+        </a>
+    </li>
+{% endif %}
+
                     <li><a class="dropdown-item" href="#" data-filtro="seguidores">Denunciar</a></li>
                 </ul>
             </div>

@@ -7,12 +7,5 @@
              class="rounded-circle" width="40" height="40" style="object-fit: cover;">
         <div>{{ item.chat.nome }}</div>
     </div>
-
-    {% if item.mensagens_nao_lidas_count > 0 %}
-    <div class="d-flex align-items-center justify-content-center rounded-circle bg-primary text-white" 
-         style="width: 25px; height: 25px; font-size: 0.8rem;">
-       {{ item.mensagens_nao_lidas_count }}
-    </div>
-    {% endif %}
 </a>
 {% endfor %}

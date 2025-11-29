@@ -1,35 +1,44 @@
 from rest_framework import serializers
-from .models import Grupo, GrupoMembro
+from .models import Grupo, GrupoMembro, Topico
+from user.serializers import ProfileSerializer
 
 
-class GrupoSerializer(serializers.ModelSerializer):
+class CreateGrupoSerializer(serializers.ModelSerializer):
+    membros = serializers.ListField(
+        child=serializers.IntegerField(),
+        write_only=True,
+        required=False
+    )
+
     class Meta:
         model = Grupo
+        fields = ["nome", "descricao", "privado", "imagem", "membros"]
+
+
+
+class TopicoSerializer(serializers.ModelSerializer):
+    ultima_mensagem = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Topico
         fields = [
             "id",
             "nome",
-            "descricao",
-            "privado",
-            "imagem",
-            "data_criacao",
+            "livro",
+            "criado_em",
+            "criado_por",
+            "qtd_mensagens",
+            "tem_spoilers",
+            "ultima_mensagem",
         ]
 
-
-class GrupoDetailSerializer(serializers.ModelSerializer):
-    administrador = serializers.StringRelatedField()
-    quantidade_membros = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Grupo
-        fields = "__all__"
-
-    def get_quantidade_membros(self, obj):
-        return obj.membros.count()
-
-
-class GrupoMembroSerializer(serializers.ModelSerializer):
-    usuario = serializers.StringRelatedField()
-
-    class Meta:
-        model = GrupoMembro
-        fields = ["usuario", "data_entrada", "ordem"]
+    def get_ultima_mensagem(self, obj):
+        msg = obj.ultima_mensagem()
+        if not msg:
+            return None
+        
+        return {
+            "usuario": msg.usuario.username if msg.usuario else "Desconhecido",
+            "conteudo": msg.conteudo,
+            "criado_em": msg.criado_em,
+        }

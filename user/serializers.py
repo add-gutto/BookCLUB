@@ -12,11 +12,12 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email", "name"]
 
 class ProfileSerializer(serializers.ModelSerializer):
-    profile_picture = serializers.ImageField( max_length=None, use_url=True, required=False, allow_null=True )
-    thumbnail = serializers.ImageField(max_length=None, use_url=True, required=False, allow_null=True)
+    username = serializers.CharField(source="user.username", read_only=True)
+    profile_picture = serializers.ImageField( max_length=None, use_url=False, required=False, allow_null=True )
+    thumbnail = serializers.ImageField(max_length=None, use_url=False, required=False, allow_null=True)
     class Meta:
         model = Profile
-        fields = ["id", "name", "bio", "profile_picture", "thumbnail"]
+        fields = ["id", "name", "bio", "profile_picture", "thumbnail", "user", "username"]
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)

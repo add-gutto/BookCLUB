@@ -1,5 +1,6 @@
 from django.conf import settings
 import json
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -35,7 +36,8 @@ def index(request):
 # ----------------------------
 # PERFIL
 # ----------------------------
-class UserProfileView(DetailView):
+
+class UserProfileView(LoginRequiredMixin, DetailView):
     model = User
     template_name = "user/profile/index.html"
     context_object_name = "user"
@@ -53,7 +55,7 @@ class UserProfileView(DetailView):
         return context
 
 
-class EditProfileView(UpdateView):
+class EditProfileView(LoginRequiredMixin, UpdateView):
     model = Profile
     form_class = ProfileForm
     template_name = "user/profile/form_profile.html"
@@ -68,19 +70,22 @@ class EditProfileView(UpdateView):
 # ----------------------------
 # CRUD de Usuários
 # ----------------------------
-class UserListView(ListView):
+class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = User
     template_name = "user/user_list.html"
     context_object_name = "users"
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class UserDetailView(DetailView):
+
+class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
     template_name = "user/user_detail.html"
     context_object_name = "user"
 
 
-class UserCreateView(CreateView):
+class UserCreateView(LoginRequiredMixin, CreateView):
     model = User
     form_class = UserForm
     template_name = "user/forms/register.html"
@@ -99,7 +104,7 @@ class UserCreateView(CreateView):
         return redirect("user-profile", pk=user.pk)
 
 
-class UserStatusActiveView(View):
+class UserStatusActiveView(LoginRequiredMixin, View):
     def post(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         user.is_active = not user.is_active
@@ -107,7 +112,7 @@ class UserStatusActiveView(View):
         return redirect("user-list")
 
 
-class UserAdminView(View):
+class UserAdminView(LoginRequiredMixin, View):
     def post(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         user.is_staff = not user.is_staff
@@ -119,7 +124,7 @@ class UserAdminView(View):
 # ----------------------------
 # Autenticação
 # ----------------------------
-class UserLoginView(FormView):
+class UserLoginView(LoginRequiredMixin, FormView):
     form_class = AuthenticationForm
     template_name = "user/forms/login.html"
     success_url = reverse_lazy("home")
@@ -133,7 +138,7 @@ class UserLoginView(FormView):
         return super().form_valid(form)
 
 
-class UserLogoutView(View):
+class UserLogoutView(LoginRequiredMixin, View):
     def get(self, request):
         logout(request)
         return redirect("home")
@@ -142,7 +147,7 @@ class UserLogoutView(View):
 # ----------------------------
 # Gerenciamento de Senhas
 # ----------------------------
-class UserPasswordChangeView(PasswordChangeView):
+class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     form_class = PasswordChangeForm
     template_name = "user/forms/change_password.html"
 
@@ -156,7 +161,7 @@ class UserPasswordChangeView(PasswordChangeView):
 
 
 
-class UserPasswordResetView(PasswordResetView):
+class UserPasswordResetView(LoginRequiredMixin, PasswordResetView):
     form_class = PasswordResetForm
     template_name = "user/forms/password_reset.html"
     subject_template_name = "user/email/resetar_senha_email.txt"
@@ -188,7 +193,7 @@ class UserPasswordResetView(PasswordResetView):
         return HttpResponseRedirect(self.success_url) 
 
 
-class UserPasswordResetConfirmView(PasswordResetConfirmView):
+class UserPasswordResetConfirmView(LoginRequiredMixin, PasswordResetConfirmView):
     form_class = SetPasswordForm
     template_name = "user/forms/password_reset_confirm.html"
     success_url = reverse_lazy("login")

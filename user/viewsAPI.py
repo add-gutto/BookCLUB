@@ -1,16 +1,19 @@
 from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import PasswordResetForm
-from rest_framework import generics, status, permissions, viewsets
-from rest_framework.authtoken.models import Token
+from django.db import transaction
+
+from rest_framework import generics, status, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from django.db import transaction
 
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import Profile
 from .forms import AuthenticationForm
@@ -19,45 +22,41 @@ from .serializers import (
     ProfileSerializer, PasswordResetRequestSerializer
 )
 
+def generate_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        "refresh": str(refresh),
+        "access": str(refresh.access_token)
+    }
 
-# ----------------------------
-# REGISTRO
-# ----------------------------
 class RegisterAPIView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
 
+    @transaction.atomic
     @swagger_auto_schema(
         request_body=RegisterSerializer,
-        responses={201: openapi.Response("Usuário criado com sucesso.", UserSerializer)},
-        operation_description="Cria um novo usuário, o perfil associado e retorna o token de autenticação."
+        responses={201: openapi.Response("Usuário registrado", UserSerializer)},
+        operation_description="Registra usuário e retorna JWT (access + refresh)."
     )
-    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
         user = serializer.save()
         Profile.objects.create(user=user)
-        token, _ = Token.objects.get_or_create(user=user)
+
+        tokens = generate_tokens_for_user(user)
+
         return Response({
             "user": UserSerializer(user).data,
-            "token": token.key
+            "tokens": tokens
         }, status=status.HTTP_201_CREATED)
 
-# ----------------------------
-# LOGIN
-# ----------------------------
 class LoginAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
-    @swagger_auto_schema(
-        request_body=LoginSerializer,
-        responses={
-            200: openapi.Response("Login bem-sucedido.", UserSerializer),
-            400: "Credenciais inválidas."
-        },
-        operation_description="Autentica o usuário via nome de usuário ou e-mail e retorna o token de acesso."
-    )
+    @swagger_auto_schema(request_body=LoginSerializer)
     def post(self, request):
         form = AuthenticationForm(request=request, data=request.data)
 
@@ -65,103 +64,81 @@ class LoginAPIView(APIView):
             return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
         user = form.get_user()
+
         login(request, user)
-        token, _ = Token.objects.get_or_create(user=user)
+
+        tokens = generate_tokens_for_user(user)
 
         return Response({
-            "token": token.key,
+            "tokens": tokens,
             "user": UserSerializer(user).data
         }, status=status.HTTP_200_OK)
 
-
-# ----------------------------
-# LOGOUT
-# ----------------------------
 class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
-        responses={200: openapi.Response("Logout realizado com sucesso.")},
-        operation_description="Finaliza a sessão e remove o token de autenticação do usuário logado."
+        operation_description="Invalida o refresh token e finaliza a sessão JWT."
     )
     def post(self, request):
-        # Deleta o token para invalidar o login
-        if hasattr(request.user, "auth_token"):
-            request.user.auth_token.delete()
-        logout(request)
-        return Response({"message": "Logout realizado com sucesso."}, status=status.HTTP_200_OK)
+        try:
+            refresh_token = request.data.get("refresh")
 
+            if not refresh_token:
+                return Response(
+                    {"error": "Refresh token obrigatório."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-# ----------------------------
-# PERFIL (visualizar e editar)
-# ----------------------------
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            logout(request)
+            return Response({"message": "Logout realizado."}, status=status.HTTP_200_OK)
+
+        except Exception:
+            return Response({"error": "Token inválido."}, status=status.HTTP_400_BAD_REQUEST)
+
 class ProfileAPIView(generics.RetrieveUpdateAPIView):
-    """
-    Retorna ou atualiza o perfil do usuário autenticado.
-    Permite upload de imagem via multipart/form-data.
-    """
     serializer_class = ProfileSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def get_object(self):
         return self.request.user.profile
 
     @swagger_auto_schema(
-        operation_description="Obtém ou atualiza o perfil do usuário autenticado (upload de imagem permitido via multipart/form-data)."
+        operation_description="Obtém ou atualiza o perfil do usuário autenticado."
     )
-    def put(self, request, *args, **kwargs):
-        """Atualiza o perfil (PUT completo)"""
-        return super().update(request, *args, **kwargs)
+    def get(self, request, *args, **kwargs):
+        print("🟦 Headers recebidos:", request.headers)
+        print("🟩 Authorization:", request.headers.get("Authorization"))
+        return super().get(request, *args, **kwargs)
 
-    def patch(self, request, *args, **kwargs):
-        """Atualiza parcialmente o perfil (PATCH)"""
-        return super().partial_update(request, *args, **kwargs)
-
-
-# ----------------------------
-# ALTERAR SENHA
-# ----------------------------
 class ChangePasswordAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(
-        request_body=ChangePasswordSerializer,
-        responses={
-            200: openapi.Response("Senha alterada com sucesso."),
-            400: "Senha atual incorreta."
-        },
-        operation_description="Permite ao usuário autenticado alterar sua senha, informando a senha atual e a nova senha."
-    )
+    @swagger_auto_schema(request_body=ChangePasswordSerializer)
     def post(self, request):
         serializer = ChangePasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        user = request.user
         old_password = serializer.validated_data["old_password"]
         new_password = serializer.validated_data["new_password"]
 
-        user = request.user
         if not user.check_password(old_password):
             return Response({"error": "Senha atual incorreta."}, status=status.HTTP_400_BAD_REQUEST)
 
         user.set_password(new_password)
         user.save()
+
         return Response({"message": "Senha alterada com sucesso."}, status=status.HTTP_200_OK)
 
-
-# ----------------------------
-# RESET DE SENHA (envia e-mail)
-# ----------------------------
 class PasswordResetRequestAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
-    @swagger_auto_schema(
-        request_body=PasswordResetRequestSerializer,
-        responses={
-            200: openapi.Response("E-mail de redefinição de senha enviado com sucesso."),
-            400: "E-mail não encontrado ou inválido."
-        },
-        operation_description="Envia um e-mail com o link de redefinição de senha, caso o e-mail informado exista no sistema."
-    )
+    @swagger_auto_schema(request_body=PasswordResetRequestSerializer)
     def post(self, request):
         form = PasswordResetForm(data=request.data)
 
@@ -175,9 +152,6 @@ class PasswordResetRequestAPIView(APIView):
                 subject_template_name="user/email/resetar_senha_assunto.txt",
                 extra_email_context={"APP_NAME": getattr(settings, "APP_NAME", "BookCLUB")},
             )
-            return Response(
-                {"message": "E-mail de redefinição de senha enviado com sucesso."},
-                status=status.HTTP_200_OK
-            )
+            return Response({"message": "E-mail enviado."}, status=status.HTTP_200_OK)
 
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
