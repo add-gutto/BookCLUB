@@ -1,3 +1,5 @@
+
+{% raw %}
 {% extends '_base.html' %}
 {% load static %}
 {% block content %}
@@ -9,7 +11,7 @@
             <div class="card border-0 overflow-hidden">
 
                 <!-- Capa -->
-                <img src="{% if user.profile.thumbnail %}{{ user.profile.thumbnail.url }}{% else %}{% static 'template/img/placeholder_thumb.jpeg' %}{% endif %}"
+                <img src="{% if profile and profile.thumbnail %}{{ profile.thumbnail.url }}{% else %}{% static 'template/img/placeholder_thumb.jpeg' %}{% endif %}"
                     alt="Capa do perfil" class="img-fluid rounded-top"
                     style="width: 100%; height: 200px; object-fit: cover;">
 
@@ -23,28 +25,28 @@
                         <!-- Esquerda: avatar e nome -->
                         <div class="col-md-6 d-flex flex-wrap align-items-center">
                             <div class="position-relative me-3" style="margin-top: -100px;">
-                                <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}{% static 'template/img/placeholder.jpg' %}{% endif %}"
+                                <img src="{% if profile and profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}{% static 'template/img/placeholder.jpg' %}{% endif %}"
                                     alt="Avatar" class="rounded-circle border border-4 border-white shadow" width="200"
                                     height="200">
                             </div>
                             <div class="mt-4">
-                                <h4 class="fw-bold mb-1 ">{{user.profile.name}}</h4>
-                                <h6 class="text-muted mb-1">@{{user.username}}</h6>
+                                <h4 class="fw-bold mb-1 ">{% if profile and profile.name %}{{ profile.name }}{% else %}{{ user.username }}{% endif %}</h4>
+                                <h6 class="text-muted mb-1">@{{ user.username }}</h6>
                             </div>
                         </div>
 
                         <!-- Direita: estatísticas -->
                         <div class="col-md-6 d-flex flex-wrap justify-content-around text-center mt-4 mt-md-0">
                             <div>
-                                <h4 class="fw-bold mb-0">938</h4>
+                                <h4 class="fw-bold mb-0">{{ total_resenhas }}</h4>
                                 <small class="text-secondary d-block fs-6">Posts</small>
                             </div>
                             <div>
-                                <h4 class="fw-bold mb-0">{{user.seguidores.count}}</h4>
+                                <h4 class="fw-bold mb-0">{{ total_seguidores }}</h4>
                                 <small class="text-secondary d-block fs-6">Followers</small>
                             </div>
                             <div>
-                                <h4 class="fw-bold mb-0">{{user.seguindo.count}}</h4>
+                                <h4 class="fw-bold mb-0">{{ total_seguindo }}</h4>
                                 <small class="text-secondary d-block fs-6">Following</small>
                             </div>
                         </div>
@@ -52,12 +54,12 @@
 
                     <!-- Bio justificada -->
                     <div class="mt-4 mx-auto" style="max-width: 700px;">
-                        <p class="text-secondary" style="text-align: justify;">{{user.profile.bio}}
+                        <p class="text-secondary" style="text-align: justify;">{% if profile %}{{ profile.bio }}{% endif %}
                         </p>
                     </div>
 
                     <div class="d-flex justify-content-end gap-3">
-                        {%if user == request.user %}
+                        {% if user == request.user %}
                         <a href="{% url 'editar_profile' %}" class="btn btn-primary px-5 py-2 fw-semibold">
                             Editar Perfil
                         </a>
@@ -85,62 +87,47 @@
                 </div>
             </div>
 
-            <!-- Sinopse (visível aqui apenas no mobile) -->
-            <div class="card  border mt-4 d-lg-none">
-                <div class="card-body ">
-                    <h4 class="fw-semibold mb-3">Sinopse</h4>
-                    <p style="text-align: justify;">
-                        Hello, I am Mathew Anderson. I love making websites and graphics. Lorem ipsum dolor sit amet,
-                        consectetur adipiscing elit.
-                    </p>
-                </div>
-            </div>
+            <!-- Resenhas -->
+            <div class="mt-4">
+                <h5 class="mb-3">Resenhas ({{ total_resenhas }})</h5>
 
-            <!-- Posts / Timeline -->
-            <div>
-                <div class="card border-top-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center gap-3 mb-2">
-                            <img src="https://bootdey.com/img/Content/avatar/avatar5.png" class="rounded-circle"
-                                width="40" height="40">
-                            <h6 class="fw-semibold mb-0 fs-5">Carry Minati</h6>
-                            <span class="text-muted">now</span>
+                {% for resenha in resenhas %}
+                <div class="card mb-3">
+                    <div class="row g-0">
+                        <div class="col-auto p-3">
+                            {% if profile and profile.profile_picture %}
+                                <img src="{{ profile.profile_picture.url }}" class="rounded-circle" width="64" height="64">
+                            {% else %}
+                                <img src="{% static 'template/img/placeholder.jpg' %}" class="rounded-circle" width="64" height="64">
+                            {% endif %}
                         </div>
-                        <p class="text-dark">
-                            Pucnus taw set babu lasufot lawdebuw nem ig bopnub notavfe pe ranlu dijsan liwfekaj lo az.
-                        </p>
-                    </div>
-                </div>
-                <div class="card border-top-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center gap-3">
-                            <img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="" class="rounded-circle"
-                                width="40" height="40">
-                            <h6 class="fw-semibold mb-0 fs-4">Genelia Desouza</h6>
-                            <span class="text-muted">15 min ago</span>
-                        </div>
-                        <p class="text-dark my-3">
-                            Faco kiswuoti mucurvi juokomo fobgi aze huweik zazjofefa kuujer talmoc li niczot
-                            lohejbo vozev zi huto. Ju
-                            tupma uwujate bevolkoh hob munuap lirec zak ja li hotlanu pigtunu.
-                        </p>
-                        <div class="p-4 rounded-2 bg-light">
-                            <div class="d-flex align-items-center gap-3">
-                                <img src="https://bootdey.com/img/Content/avatar/avatar3.png" alt=""
-                                    class="rounded-circle" width="33" height="33">
-                                <h6 class="fw-semibold mb-0 fs-4">Ritesh Deshmukh</h6>
-                                <span class="text-muted">15 min ago</span>
+                        <div class="col">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <img src="{% if resenha.livro.capa %}{{ resenha.livro.capa }}{% else %}{% static 'template/img/placeholderimage.jpg' %}{% endif %}"
+                                         alt="Capa do livro" style="width:48px; height:68px; object-fit:cover;" class="me-3">
+                                    <div>
+                                        <strong>{{ resenha.livro.titulo }}</strong>
+                                        <div class="text-muted small">por {{ resenha.livro.autor }}</div>
+                                    </div>
+                                    <div class="ms-auto text-end small text-muted">{{ resenha.criado_em|date:'d M Y' }}</div>
+                                </div>
+
+                                <p class="mb-1">{{ resenha.comentario|default:"(sem comentário)" }}</p>
+
+                                <div>
+                                    <span class="badge bg-primary me-2">Nota: {{ resenha.nota }}/5</span>
+                                </div>
                             </div>
-                            <p class="my-3">
-                                Hintib cojno riv ze heb cipcep fij wo tufinpu bephekdab infule pajnaji. Jiran
-                                goetimip muovo go en
-                                gaga zeljomim hozlu lezuvi ehkapod dec bifoom hag dootasac odo luvgit ti ella.
-                            </p>
                         </div>
                     </div>
                 </div>
+                {% empty %}
+                <div class="text-secondary">Este usuário ainda não escreveu resenhas.</div>
+                {% endfor %}
 
             </div>
+
         </div>
 
         <!-- Sidebar / Sinopse (visível apenas no desktop) -->
@@ -149,8 +136,7 @@
                 <div class="card-body">
                     <h4 class="fw-semibold mb-3">Sinopse</h4>
                     <p style="text-align: justify;">
-                        Hello, I am Mathew Anderson. I love making websites and graphics. Lorem ipsum dolor sit amet,
-                        consectetur adipiscing elit.
+                        Aqui você pode colocar informações adicionais do usuário, links e estatísticas.
                     </p>
                 </div>
             </div>
@@ -159,3 +145,6 @@
     </div>
 </div>
 {% endblock %}
+{% endraw %}
+
+
