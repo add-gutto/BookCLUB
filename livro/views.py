@@ -114,7 +114,7 @@ def resenha_form(request, id):
             comentario=comentario
         )
 
-        return redirect("livro:livro_detail", identificador_api=livro.identificador_api)
+        return redirect("user-profile", pk= request.user.id)
 
     return render(request, "livro/resenha_form.html", {
         "livro": livro,

@@ -1,7 +1,8 @@
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import PasswordResetForm
-from django.db import transaction
+from django.db import IntegrityError, transaction
 
 from rest_framework import generics, status, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -15,7 +16,7 @@ from drf_yasg import openapi
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import Profile
+from .models import Profile, Seguidor, User
 from .forms import AuthenticationForm
 from .serializers import (
     UserSerializer, RegisterSerializer, LoginSerializer, ChangePasswordSerializer,
@@ -111,8 +112,6 @@ class ProfileAPIView(generics.RetrieveUpdateAPIView):
         operation_description="Obtém ou atualiza o perfil do usuário autenticado."
     )
     def get(self, request, *args, **kwargs):
-        print("🟦 Headers recebidos:", request.headers)
-        print("🟩 Authorization:", request.headers.get("Authorization"))
         return super().get(request, *args, **kwargs)
 
 class ChangePasswordAPIView(APIView):
@@ -155,3 +154,54 @@ class PasswordResetRequestAPIView(APIView):
             return Response({"message": "E-mail enviado."}, status=status.HTTP_200_OK)
 
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SeguirUsuarioAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        """
+        Verifica se o usuário logado já está seguindo outro usuário.
+        """
+        usuario = get_object_or_404(User, pk=user_id)
+
+        if usuario == request.user:
+            return Response({"seguindo": False})
+
+        seguindo = Seguidor.objects.filter(
+            usuario=request.user,
+            seguindo=usuario
+        ).exists()
+
+        return Response({"seguindo": seguindo})
+
+    def post(self, request, user_id):
+        """
+        Segue o usuário. Se já segue, retorna seguindo=True sem duplicar.
+        """
+        usuario = get_object_or_404(User, pk=user_id)
+
+        if usuario == request.user:
+            return Response({"erro": "Você não pode seguir a si mesmo."}, status=400)
+
+        try:
+            seguidor, created = Seguidor.objects.get_or_create(
+                usuario=request.user,
+                seguindo=usuario
+            )
+            return Response({"message": "seguido", "seguindo": True})
+        except IntegrityError:
+            # Caso de duplicidade ou outro erro
+            return Response({"message": "erro ao seguir"}, status=400)
+
+    def delete(self, request, user_id):
+        """
+        Deixa de seguir o usuário.
+        """
+        usuario = get_object_or_404(User, pk=user_id)
+
+        Seguidor.objects.filter(
+            usuario=request.user,
+            seguindo=usuario
+        ).delete()
+
+        return Response({"message": "unfollowed", "seguindo": False})

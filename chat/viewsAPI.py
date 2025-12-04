@@ -19,7 +19,7 @@ def chats_ajax_api(request):
 
         grupo_serializer = GrupoSerializer(grupo, context={'request': request})
         data = grupo_serializer.data
-        data['mensagens_nao_lidas_count'] = mensagens_nao_lidas  # adicionado manualmente
+        data['mensagens_nao_lidas_count'] = mensagens_nao_lidas  
         grupos_data.append(data)
 
     return Response({"chats": grupos_data})

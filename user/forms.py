@@ -26,10 +26,7 @@ class EmailChangeForm(forms.Form):
     new_email = forms.EmailField(label="Novo e-mail", max_length=254)
 
 
-
-
-
-User = get_user_model()
+#User = get_user_model()
 
 class AuthenticationForm(AuthenticationForm):
     username = forms.CharField(label="Usuário ou e-mail")

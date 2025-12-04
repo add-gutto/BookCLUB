@@ -9,7 +9,7 @@ from .views import (
 )
 from .viewsAPI import (
     RegisterAPIView, LoginAPIView, LogoutAPIView, ChangePasswordAPIView,
-    PasswordResetRequestAPIView, ProfileAPIView
+    PasswordResetRequestAPIView, ProfileAPIView, SeguirUsuarioAPIView
 )
 
 urlpatterns = [
@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/profile/', ProfileAPIView.as_view(), name='api-profile'),
     path('api/password/change/', ChangePasswordAPIView.as_view(), name='api-change-password'),
     path('api/password/reset/request/', PasswordResetRequestAPIView.as_view(), name='api-password-reset-request'),
+    path("api/seguir/<int:user_id>/", SeguirUsuarioAPIView.as_view(), name="seguir-usuario"),
 
 
     # ----------------------------

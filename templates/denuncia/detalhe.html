@@ -14,9 +14,9 @@
 
             <p><strong>Autor:</strong>
                 {% if denuncia.autor %}
-                    {{ denuncia.autor.username }}
+                {{ denuncia.autor.username }}
                 {% else %}
-                    Anônimo
+                Anônimo
                 {% endif %}
             </p>
 
@@ -35,7 +35,7 @@
                 <label for="status" class="form-label">Alterar status</label>
                 <select name="status" class="form-select w-50 mb-3">
                     {% for valor, texto in denuncia.STATUS_CHOICES %}
-                    <option value="{{ valor }}" {% if valor == denuncia.status %}selected{% endif %}>
+                    <option value="{{ valor }}" {% if valor==denuncia.status %}selected{% endif %}>
                         {{ texto }}
                     </option>
                     {% endfor %}

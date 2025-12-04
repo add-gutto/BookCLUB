@@ -4,40 +4,47 @@
 {% block content %}
 
 <style>
-/* Estrelas */
-.star {
-    font-size: 35px;
-    cursor: pointer;
-    color: #ccc;             /* cor padrão (cinza) */
-    transition: color .12s;
-    user-select: none;
-    display: inline-block;
-    margin-right: 6px;
-}
+    /* Estrelas */
+    .star {
+        font-size: 35px;
+        cursor: pointer;
+        color: #ccc;
+        /* cor padrão (cinza) */
+        transition: color .12s;
+        user-select: none;
+        display: inline-block;
+        margin-right: 6px;
+    }
 
-/* Estrela ativa (amarela) */
-.star.active {
-    color: #f5c518;
-}
+    /* Estrela ativa (amarela) */
+    .star.active {
+        color: #f5c518;
+    }
 
-/* Quando o formulário estiver desabilitado, reduzir contraste */
-.form-disabled .star {
-    opacity: 0.6;
-    cursor: default;
-}
+    /* Quando o formulário estiver desabilitado, reduzir contraste */
+    .form-disabled .star {
+        opacity: 0.6;
+        cursor: default;
+    }
 </style>
 
 <div class="container mt-4" style="max-width: 700px;">
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <button class="btn p-0 border-0 bg-transparent d-flex align-items-center" onclick="history.back()">
+            <i class="fas fa-chevron-left fs-5"></i>
+        </button>
 
-    <h2 class="mb-4">Avaliar Livro</h2>
+        <h2 class="mb-0">Avaliar Livro</h2>
+    </div>
+
 
     <div class="card shadow-sm p-4">
 
         <!-- INFORMAÇÕES DO LIVRO -->
         <div class="d-flex align-items-center mb-3">
             {% if livro.capa %}
-                <img src="{{ livro.capa }}" alt="Capa do livro" class="me-3"
-                     style="width: 90px; height: auto; border-radius: 4px;">
+            <img src="{{ livro.capa }}" alt="Capa do livro" class="me-3"
+                style="width: 90px; height: auto; border-radius: 4px;">
             {% endif %}
 
             <div>
@@ -47,9 +54,9 @@
         </div>
 
         {% if resenha_existente %}
-            <div class="alert alert-info">
-                Você já avaliou este livro com <strong>{{ resenha_existente.nota }} estrelas</strong>.
-            </div>
+        <div class="alert alert-info">
+            Você já avaliou este livro com <strong>{{ resenha_existente.nota }} estrelas</strong>.
+        </div>
         {% endif %}
 
         <!-- ADICIONA classe "form-disabled" se já houver resenha -->
@@ -60,31 +67,25 @@
 
             <div class="rating mb-3">
 
-                <input type="hidden" name="nota" id="notaInput"
-                       value="{{ resenha_existente.nota|default:'0' }}">
+                <input type="hidden" name="nota" id="notaInput" value="{{ resenha_existente.nota|default:'0' }}">
 
                 {# Itera sobre a lista de inteiros enviada pela view #}
                 {% for i in stars %}
-                    <span
-                        class="star {% if resenha_existente and resenha_existente.nota >= i %}active{% endif %}"
-                        data-value="{{ i }}"
-                        title="{{ i }} estrela{% if i > 1 %}s{% endif %}">
-                        ★
-                    </span>
+                <span class="star {% if resenha_existente and resenha_existente.nota >= i %}active{% endif %}"
+                    data-value="{{ i }}" title="{{ i }} estrela{% if i > 1 %}s{% endif %}">
+                    ★
+                </span>
                 {% endfor %}
             </div>
 
             <div class="mb-3">
                 <label class="form-label fw-bold">Sua Resenha</label>
-                <textarea name="comentario"
-                          class="form-control"
-                          rows="5"
-                          placeholder="Escreva aqui sua opinião..."
-                          {% if resenha_existente %}disabled{% endif %}>{{ resenha_existente.comentario }}</textarea>
+                <textarea name="comentario" class="form-control" rows="5" placeholder="Escreva aqui sua opinião..." 
+                {% if resenha_existente %}disabled{% endif %}>{{ resenha_existente.comentario }}</textarea>
+
             </div>
 
-            <button class="btn btn-primary w-100" type="submit"
-                    {% if resenha_existente %}disabled{% endif %}>
+            <button class="btn btn-primary w-100" type="submit" {% if resenha_existente %}disabled{% endif %}>
                 Enviar Resenha
             </button>
         </form>

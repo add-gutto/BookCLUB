@@ -10,7 +10,7 @@
 
             {% if msg.imagem %}
             <div class="image-message mt-2">
-                <img src="{{ msg.imagem.url }}" alt="Imagem" loading="lazy" >
+                <img src="{{ msg.imagem.url }}" alt="Imagem" loading="lazy">
             </div>
             {% endif %}
 
@@ -33,13 +33,11 @@
 <div class="d-flex align-items-end gap-2 message received" data-message-id="{{ msg.id }}">
 
     <!-- Avatar -->
-    <img class="img-profile rounded-circle"
-         src="{% if msg.usuario and msg.usuario.profile.profile_picture %}
+    <img class="img-profile rounded-circle" src="{% if msg.usuario and msg.usuario.profile.profile_picture %}
                 {{ msg.usuario.profile.profile_picture.url }}
               {% else %}
                 {% static 'template/img/placeholder.jpg' %}
-              {% endif %}"
-         width="40" height="40" style="object-fit: cover;">
+              {% endif %}" width="40" height="40" style="object-fit: cover;">
 
     <div class="message-wrapper">
         <div class="message-content">
@@ -59,7 +57,7 @@
             {% endif %}
 
             {% if msg.conteudo %}
-            
+
             {% if msg.is_spoiler %}
             <!-- ========== SPÓILER RECEBIDO (BLUR) ========== -->
             <div class="spoiler-box mt-2  position-relative">
@@ -68,9 +66,7 @@
                     {{ msg.conteudo }}
                 </div>
 
-                <button class="btnMostrarSpoiler mt-1"
-                    data-target="spoiler-{{ msg.id }}"
-                    style="
+                <button class="btnMostrarSpoiler mt-1" data-target="spoiler-{{ msg.id }}" style="
                         position: absolute;
                 top: 50%;
                 left: 50%;

@@ -67,19 +67,19 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
 
-    function carregar(pagina=1){
-        const q = document.getElementById("busca").value;
-        const status = document.getElementById("statusFiltro").value;
+        function carregar(pagina = 1) {
+            const q = document.getElementById("busca").value;
+            const status = document.getElementById("statusFiltro").value;
 
-        fetch(`/denuncia/ajax/buscar/?page=${pagina}&q=${q}&status=${status}`)
-        .then(response => response.json())
-        .then(data => {
+            fetch(`/denuncia/ajax/buscar/?page=${pagina}&q=${q}&status=${status}`)
+                .then(response => response.json())
+                .then(data => {
 
-            let html = "";
-            data.resultados.forEach(d => {
-                html += `
+                    let html = "";
+                    data.resultados.forEach(d => {
+                        html += `
                     <tr>
                         <td>${d.id}</td>
                         <td>${d.titulo}</td>
@@ -94,23 +94,23 @@ document.addEventListener("DOMContentLoaded", () => {
                         </td>
                     </tr>
                 `;
-            });
+                    });
 
-            document.getElementById("tabelaDenuncias").innerHTML = html;
+                    document.getElementById("tabelaDenuncias").innerHTML = html;
 
-            // Paginação
-            let pag = "";
-            for(let i = 1; i <= data.total_paginas; i++){
-                pag += `<button class="btn btn-sm btn-${i === data.pagina_atual ? "primary" : "outline-primary"} me-1" onclick="carregar(${i})">${i}</button>`;
-            }
-            document.getElementById("paginacao").innerHTML = pag;
+                    // Paginação
+                    let pag = "";
+                    for (let i = 1; i <= data.total_paginas; i++) {
+                        pag += `<button class="btn btn-sm btn-${i === data.pagina_atual ? "primary" : "outline-primary"} me-1" onclick="carregar(${i})">${i}</button>`;
+                    }
+                    document.getElementById("paginacao").innerHTML = pag;
 
-        });
-    }
+                });
+        }
 
-    document.getElementById("btnBuscar").onclick = () => carregar();
-    carregar();
-});
+        document.getElementById("btnBuscar").onclick = () => carregar();
+        carregar();
+    });
 </script>
 
 {% endblock %}

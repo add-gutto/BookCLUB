@@ -23,18 +23,28 @@ class UserSerializer(serializers.ModelSerializer):
 # ------------------------------------------------------------
 class ProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
-    profile_picture = serializers.ImageField(max_length=None, use_url=False, required=False, allow_null=True)
-    thumbnail = serializers.ImageField(max_length=None, use_url=False, required=False, allow_null=True)
+    profile_picture = serializers.ImageField(
+        max_length=None, use_url=False, required=False, allow_null=True
+    )
+    thumbnail = serializers.ImageField(
+        max_length=None, use_url=False, required=False, allow_null=True
+    )
 
-    total_resenhas = serializers.IntegerField(read_only=True)
-    total_seguidores = serializers.IntegerField(read_only=True)
-    total_seguindo = serializers.IntegerField(read_only=True)
+    livros_count = serializers.IntegerField(
+        source='user.resenhas.count', read_only=True
+    )
+    followers_count = serializers.IntegerField(
+        source='user.seguidores.count', read_only=True
+    )
+    following_count = serializers.IntegerField(
+        source='user.seguindo.count', read_only=True
+    )
 
     class Meta:
         model = Profile
         fields = [
             "id", "name", "bio", "profile_picture", "thumbnail",
-            "user", "username", "total_resenhas", "total_seguidores", "total_seguindo"
+            "user", "username", "livros_count", "followers_count", "following_count",
         ]
 
 

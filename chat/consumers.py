@@ -1,4 +1,5 @@
 import json
+from user.models import Profile
 import base64
 from django.core.files.base import ContentFile
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -45,8 +46,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             is_spoiler=is_spoiler,
             imagem_base64=imagem_base64
         )
+        print(text_data)
 
         # ========= ENVIAR AOS USUÁRIOS ========= #
+        profile_picture = await self.get_profile_picture(user_id)
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -55,6 +58,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "message": msg.conteudo,
                 "user_id": user_id,
                 "username": username,
+                "profile_picture": profile_picture,
                 "is_spoiler": msg.is_spoiler,
                 "capitulo": msg.capitulo,
                 "imagem_url": msg.imagem.url if msg.imagem else None,
@@ -87,3 +91,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             msg.imagem.save(file_name, ContentFile(base64.b64decode(imgstr)), save=True)
 
         return msg
+
+    @database_sync_to_async
+    def get_profile_picture(self, user_id):
+        profile = Profile.objects.filter(user_id=user_id).first()
+        return profile.profile_picture.name if profile and profile.profile_picture else None

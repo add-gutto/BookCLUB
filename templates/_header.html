@@ -6,19 +6,20 @@
         <!-- ÍCONE DE PERFIL SEMPRE VISÍVEL — FORA DO COLLAPSE -->
         <ul class="navbar-nav ms-auto d-lg-none">
             <li class="nav-item dropdown no-arrow">
-                <a class="nav-link dropdown-toggle d-flex align-items-center"
-                   href="#" id="mobileProfileDropdown"
-                   role="button" data-bs-toggle="dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="mobileProfileDropdown"
+                    role="button" data-bs-toggle="dropdown">
 
                     <img class="img-profile rounded-circle"
-                         src="{% if request.user.profile.profile_picture %}{{ request.user.profile.profile_picture.url }}{% else %}{% static 'template/img/placeholder.jpg' %}{% endif %}"
-                         width="30" height="30" style="object-fit: cover;">
+                        src="{% if request.user.profile.profile_picture %}{{ request.user.profile.profile_picture.url }}{% else %}{% static 'template/img/placeholder.jpg' %}{% endif %}"
+                        width="30" height="30" style="object-fit: cover;">
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="mobileProfileDropdown">
                     <li><a class="dropdown-item" href="{% url 'user-profile' request.user.id %}">Profile</a></li>
                     <li><a class="dropdown-item" href="{% url 'user-detail' request.user.id %}">Configurações</a></li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
                     <li><a class="dropdown-item" href="{% url 'logout' %}">Sair</a></li>
                 </ul>
             </li>
@@ -29,32 +30,34 @@
             <ul class="navbar-nav ms-auto mt-2 mt-lg-0 align-items-center">
 
                 {% if request.user.is_staff %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'user-list' %}">
-                            <span class="d-none d-lg-inline text-gray-600 me-2">Lista de Usuários</span>
-                        </a>
-                    </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user-list' %}">
+                        <span class="d-none d-lg-inline text-gray-600 me-2">Lista de Usuários</span>
+                    </a>
+                </li>
                 {% endif %}
 
                 <!-- VERSÃO PARA TELAS GRANDES -->
                 <li class="nav-item dropdown no-arrow d-none d-lg-block">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center"
-                       href="#" id="navbarDropdown" role="button"
-                       data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown"
+                        role="button" data-bs-toggle="dropdown">
 
                         <span class="text-gray-600 me-2">
                             {{ request.user.username }}
                         </span>
 
                         <img class="img-profile rounded-circle"
-                             src="{% if request.user.profile.profile_picture %}{{ request.user.profile.profile_picture.url }}{% else %}{% static 'template/img/placeholder.jpg' %}{% endif %}"
-                             width="30" height="30" style="object-fit: cover;">
+                            src="{% if request.user.profile.profile_picture %}{{ request.user.profile.profile_picture.url }}{% else %}{% static 'template/img/placeholder.jpg' %}{% endif %}"
+                            width="30" height="30" style="object-fit: cover;">
                     </a>
 
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="{% url 'user-profile' request.user.id %}">Profile</a></li>
-                        <li><a class="dropdown-item" href="{% url 'user-detail' request.user.id %}">Configurações</a></li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'user-detail' request.user.id %}">Configurações</a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li><a class="dropdown-item" href="{% url 'logout' %}">Sair</a></li>
                     </ul>
                 </li>

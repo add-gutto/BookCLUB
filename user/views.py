@@ -20,6 +20,7 @@ from django.views.generic import (
 
 from .forms import UserForm, AuthenticationForm, ProfileForm, EmailChangeForm
 from .models import User, Profile, Seguidor
+from livro.models import Resenha
 
 
 
@@ -30,7 +31,7 @@ from .models import User, Profile, Seguidor
 # ----------------------------
 @login_required
 def index(request):
-    return render(request, "index.html")
+    return render(request, "_base.html")
 
 
 # ----------------------------
@@ -48,11 +49,24 @@ class UserProfileView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         perfil = self.get_object()
+
+        # seguidores / seguindo
         seguindo_ids = self.request.user.seguindo.values_list('seguindo__id', flat=True)
         seguidores_ids = self.request.user.seguidores.values_list('usuario__id', flat=True)
-        context['is_seguindo'] = perfil.id in seguindo_ids          # request.user já segue esse perfil?
-        context['is_seguido_por'] = perfil.id in seguidores_ids    # esse perfil segue request.user?
+
+        context['is_seguindo'] = perfil.id in seguindo_ids
+        context['is_seguido_por'] = perfil.id in seguidores_ids
+        
+        # todas as resenhas do usuário
+        resenhas = perfil.resenhas.select_related("livro").all()
+        context['resenhas'] = resenhas
+
+        favoritos = resenhas.filter(nota=5)
+        context['favoritos'] = favoritos
+
         return context
+
+
 
 
 class EditProfileView(LoginRequiredMixin, UpdateView):
@@ -85,7 +99,7 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "user"
 
 
-class UserCreateView(LoginRequiredMixin, CreateView):
+class UserCreateView(CreateView):
     model = User
     form_class = UserForm
     template_name = "user/forms/register.html"
@@ -124,7 +138,7 @@ class UserAdminView(LoginRequiredMixin, View):
 # ----------------------------
 # Autenticação
 # ----------------------------
-class UserLoginView(LoginRequiredMixin, FormView):
+class UserLoginView(FormView):
     form_class = AuthenticationForm
     template_name = "user/forms/login.html"
     success_url = reverse_lazy("home")
@@ -161,7 +175,7 @@ class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
 
 
 
-class UserPasswordResetView(LoginRequiredMixin, PasswordResetView):
+class UserPasswordResetView(PasswordResetView):
     form_class = PasswordResetForm
     template_name = "user/forms/password_reset.html"
     subject_template_name = "user/email/resetar_senha_email.txt"
@@ -193,7 +207,7 @@ class UserPasswordResetView(LoginRequiredMixin, PasswordResetView):
         return HttpResponseRedirect(self.success_url) 
 
 
-class UserPasswordResetConfirmView(LoginRequiredMixin, PasswordResetConfirmView):
+class UserPasswordResetConfirmView(PasswordResetConfirmView):
     form_class = SetPasswordForm
     template_name = "user/forms/password_reset_confirm.html"
     success_url = reverse_lazy("login")
@@ -223,11 +237,6 @@ def seguir_usuario(request, user_id):
         relacionamento.delete()
 
     return redirect("user-profile", pk=user_id)
-
-# ----------------------------
-# Gerenciamento de Troca de Email
-# ----------------------------
-
 # ----------------------------
 # Pesquisa de Usuários
 # ----------------------------

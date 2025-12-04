@@ -129,6 +129,18 @@ def adicionar_membros(request, pk):
     })
 
 @login_required
+def entrar_no_grupo(request, id):
+    grupo = get_object_or_404(Grupo, id=id)
+
+    # caso já seja membro
+    if GrupoMembro.objects.filter(grupo=grupo, usuario=request.user).exists():
+        return redirect("grupo_detail", pk=grupo.id)
+
+    # cria o vínculo
+    GrupoMembro.objects.create(grupo=grupo, usuario=request.user)
+    return redirect("grupo_detail", pk=grupo.id)
+
+@login_required
 def search(request):
     return render(request, "search.html")
 
