@@ -5,7 +5,6 @@ from grupo.models import Topico
 from user.serializers import ProfileSerializer
     
 
-
 class LivroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Livro

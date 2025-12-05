@@ -7,10 +7,12 @@ from django.shortcuts import get_object_or_404
 from .serializers import ResenhaSerializer, CreateResenhaSerializer
 from .models import Resenha, Livro
 from user.models import User
-
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def resenhas(request, id):
     user = get_object_or_404(User, id=id)
     resenhas = Resenha.objects.filter(usuario=user).order_by("-id")
@@ -18,24 +20,21 @@ def resenhas(request, id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(["POST"])
-def create_resenha(request, user_id, livro_id):
-    user = get_object_or_404(User, id=user_id)
+@permission_classes([IsAuthenticated])
+def create_resenha(request, livro_id):
+    user = request.user
     livro = get_object_or_404(Livro, id=livro_id)
 
     # Verifica se já existe resenha desse user para esse livro
-    resenha_existente = Resenha.objects.filter(
-        usuario=user, livro=livro
-    ).first()
-
-    if resenha_existente:
+    if Resenha.objects.filter(usuario=user, livro=livro).exists():
         return Response(
             {"detail": "Você já avaliou este livro."},
             status=status.HTTP_400_BAD_REQUEST
         )
 
     data = request.data.copy()
-    data["usuario"] = user.id
-    data["livro"] = livro.id
+    data["usuario"] = user.id      # usuário autenticado
+    data["livro"] = livro.id       # livro informado via URL
 
     serializer = CreateResenhaSerializer(data=data)
 

@@ -15,6 +15,6 @@ urlpatterns = [
 
     #API
     path("api/resenha/<int:id>/", viewsAPI.resenhas, name="resenhas"),
-    path("api/create/resenha/<int:user_id>/<int:livro_id>/", viewsAPI.create_resenha, name="create_resenha"),
+    path("api/create/resenha/<int:livro_id>/", viewsAPI.create_resenha, name="create_resenha"),
 
 ]
