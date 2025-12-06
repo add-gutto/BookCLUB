@@ -1,4 +1,4 @@
-# BOOKCLUB 
+# BOOKCLUB - Desenvolvido por Diogo Ribeiro, Gustavo Henrique Andrade e Caio Pacífico
 
 Sistema API (Django/DRF) para uma rede social de leitura dinâmica, com foco em grupos de leitura, discussão de livros e interação entre leitores.
 
