@@ -113,7 +113,6 @@ class UserCreateView(CreateView):
         user = form.save(commit=False)
         user.is_active = True
         user.save()
-        Profile.objects.create(user=user)
         login(self.request, user)
         return redirect("user-profile", pk=user.pk)
 

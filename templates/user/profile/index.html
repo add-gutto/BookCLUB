@@ -59,7 +59,7 @@
                         <a href="{% url 'editar_profile' %}" class="btn btn-primary px-5 py-2 fw-semibold">
                             Editar Perfil
                         </a>
-                        {% else %}request.fields['membros'] = jsonEncode(membros);
+                        {% else %}
                         <form method="POST" action="{% url 'seguir_usuario' user.id %}">
                             {% csrf_token %}
                             {% if is_seguindo %}
