@@ -1,4 +1,5 @@
 .env
+media
 venv
 comandos.txt
 db.sqlite3

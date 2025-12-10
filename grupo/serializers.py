@@ -1,9 +1,9 @@
+import json
+from django.conf import settings
 from rest_framework import serializers
 from .models import Grupo, GrupoMembro, Topico, Mensagem
 from user.serializers import ProfileSerializer
 from user.models import User
-
-
 
 
 class CreateGrupoSerializer(serializers.ModelSerializer):
@@ -18,24 +18,34 @@ class CreateGrupoSerializer(serializers.ModelSerializer):
         fields = ["nome", "descricao", "privado", "imagem", "membros"]
 
     def to_internal_value(self, data):
-        # Se vier membros[] (caso do multipart do Flutter)
-        if "membros[]" in data:
-            data = data.copy()                        # QueryDict é imutável
-            membros_lista = data.getlist("membros[]") # pega cada valor
-            data.setlist("membros", membros_lista)    # converte para "membros"
-        
+        data = data.copy()  # QueryDict é imutável
+
+        # ✅ Caso Flutter Multipart: membros = "[1,2]"
+        if "membros" in data:
+            raw = data.get("membros")
+
+            # Se vier como string JSON
+            if isinstance(raw, str):
+                try:
+                    membros = json.loads(raw)  # [1,2]
+                    data.setlist("membros", membros)
+                except json.JSONDecodeError:
+                    data.setlist("membros", [])
+
         return super().to_internal_value(data)
 
     def create(self, validated_data):
-        membros_data = validated_data.pop('membros', [])
+        membros_data = validated_data.pop("membros", [])
         grupo = Grupo.objects.create(**validated_data)
 
-        for user_id in membros_data:
-            try:
-                usuario = User.objects.get(pk=user_id)
-                GrupoMembro.objects.create(grupo=grupo, usuario=usuario)
-            except User.DoesNotExist:
-                pass  
+        GrupoMembro.objects.bulk_create([
+            GrupoMembro(
+                grupo=grupo,
+                usuario=User.objects.get(pk=user_id)
+            )
+            for user_id in membros_data
+            if User.objects.filter(pk=user_id).exists()
+        ])
 
         return grupo
 
@@ -70,16 +80,13 @@ class TopicoSerializer(serializers.ModelSerializer):
 
 class MensagemSerializer(serializers.ModelSerializer):
     usuario_detail = ProfileSerializer(source="usuario.profile", read_only=True)
+
     lidos_por = serializers.PrimaryKeyRelatedField(
         many=True,
         read_only=True
     )
-    imagem = serializers.ImageField(
-        max_length=None,
-        use_url=False,  # só envia o caminho relativo
-        required=False,
-        allow_null=True
-    )
+
+    imagem = serializers.SerializerMethodField()
 
     class Meta:
         model = Mensagem
@@ -95,3 +102,9 @@ class MensagemSerializer(serializers.ModelSerializer):
             "lidos_por",
         ]
         read_only_fields = ["id", "usuario_detail", "criado_em", "lidos_por"]
+
+    def get_imagem(self, obj):
+        if not obj.imagem:
+            return None
+        return f"{settings.MEDIA_URL}{obj.imagem.name}"
+

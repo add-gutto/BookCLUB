@@ -45,8 +45,6 @@ class RegisterAPIView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         user = serializer.save()
-        Profile.objects.create(user=user)
-
         tokens = generate_tokens_for_user(user)
 
         return Response({
